@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "1B4EB946-44F5-488A-B75E-0B73B3EA5857",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftFixtureTests",
+        "name" : "SwiftFixtureTests"
+      }
+    }
+  ],
+  "version" : 1
+}
