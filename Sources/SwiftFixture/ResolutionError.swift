@@ -8,6 +8,12 @@ public enum ResolutionError: Error {
 
 extension ResolutionError: LocalizedError {
     public var errorDescription: String? {
+        String(reflecting: self)
+    }
+}
+
+extension ResolutionError: CustomDebugStringConvertible {
+    public var debugDescription: String {
         switch self {
         case .noProviderRegisteredForType(let type):
             return """
