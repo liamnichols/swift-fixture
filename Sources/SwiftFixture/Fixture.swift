@@ -134,6 +134,10 @@ extension Fixture {
             return value
         }
 
+        if let type = type as? FixtureProviding.Type {
+            return try type.provideFixture(using: self) as! T
+        }
+
         throw ResolutionError.noProviderRegisteredForType(T.self)
     }
 

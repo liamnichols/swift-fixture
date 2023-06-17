@@ -4,20 +4,29 @@ import XCTest
 final class FixtureTests: XCTestCase {
     struct UnregisteredType: Equatable {
     }
-
+    
     enum EmptyEnum: CaseIterable, Equatable {
     }
-
+    
     struct TestRawRepresentable: RawRepresentable, Equatable {
         let rawValue: UnregisteredType
     }
-
+    
     struct StringRepresentable: RawRepresentable, Equatable {
         let rawValue: String
     }
-
+    
     enum TestEnum: CaseIterable, Equatable {
         case one, two, three
+    }
+    
+    struct Container: Equatable, FixtureProviding {
+        let id: Int
+        let name: String
+
+        static func provideFixture(using fixture: Fixture) throws -> Container {
+            Container(id: try fixture(), name: try fixture())
+        }
     }
 
     struct TestModel: Equatable {
@@ -39,11 +48,13 @@ final class FixtureTests: XCTestCase {
         XCTAssertEqual(try fixture(Int.self), 42)
         XCTAssertEqual(try fixture(StringRepresentable.self), StringRepresentable(rawValue: "foo"))
         XCTAssertEqual(try fixture(TestEnum.self), .three)
+        XCTAssertEqual(try fixture(Container.self), Container(id: 42, name: "foo"))
 
         // Optional
         XCTAssertEqual(try fixture(Int?.self), 42)
         XCTAssertEqual(try fixture(StringRepresentable?.self), StringRepresentable(rawValue: "foo"))
         XCTAssertEqual(try fixture(TestEnum?.self), .three)
+        XCTAssertEqual(try fixture(Container?.self), Container(id: 42, name: "foo"))
     }
 
     func testValue() {
