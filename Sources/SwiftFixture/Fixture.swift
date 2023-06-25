@@ -62,7 +62,7 @@ open class Fixture {
 
     /// Creates a fixture instance with builtin fixture types using the preferred format provided.
     ///
-    /// - Parameter preferredFormat: The preferred format used when vending fixture values. Defaults to ``PreferredFormat.random``.
+    /// - Parameter preferredFormat: The preferred format used when vending fixture values. Defaults to ``PreferredFormat/random``.
     public init(preferredFormat: PreferredFormat = .random) {
         registerDefaults(using: preferredFormat)
     }
