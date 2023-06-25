@@ -58,6 +58,45 @@ let user = try fixture(User.self)
 
 Registering custom providers (i.e in the `setUp()` method) helps keep your individual test methods concise since you don't need to directly invoke potentially lengthy initializers of objects with values that you don't actually care about purely to satisfy the compiler.
 
+Alternatively, you can add conformance to the `FixtureProviding` protocol to avoid having to register types each time.
+
+## Macro Support
+
+As an alternative to manually registering each of your own types for use with `Fixture`, you can also use the `@ProvideFixture` macro (in Swift 5.9 or later) to generate conformance to the `FixtureProviding` protocol as follows:
+
+```swift
+import SwiftFixture
+
+@ProvideFixture
+struct User {
+    let id: UUID
+    let name: String
+    let isActive: Bool
+    let createdAt: Date
+}
+```
+
+<details>
+<summary><b>Expand Macro</b></summary>
+
+```swift
+import SwiftFixture
+
+struct User {
+    let id: UUID
+    let name: String
+    let isActive: Bool
+    let createdAt: Date
+    public static func provideFixture(using fixture: Fixture) throws -> Self {
+        Self(id: try fixture(), name: try fixture(), isActive: try fixture(), createdAt: try fixture())
+    }
+}
+
+extension User : FixtureProviding  {}
+```
+
+</details>
+
 ## Inspiration
 
 This library was inspired by [KFixture](https://github.com/FlexTradeUKLtd/kfixture), a Kotlin wrapper around [JFixture](https://github.com/FlexTradeUKLtd/jfixture) (inspired by [AutoFixture](AutoFixture)).
