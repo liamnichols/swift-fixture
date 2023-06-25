@@ -1,0 +1,48 @@
+name: "Documentation"
+
+# on:
+#   push:
+#     branches:
+#     - main
+on: [push]
+
+jobs:
+  build:
+    name: Build Documentation
+    runs-on: macos-13
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_15.0.app/Contents/Developer
+      GENERATED_SITE_PATH: "${{ runner.temp }}/_site"
+      HOSTING_BASE_PATH: "https://liamnichols.eu/swift-fixture"
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+    - name: Build Documentation
+      run: -|
+        swift package \
+          --allow-writing-to-directory "${{ env.GENERATED_SITE_PATH }}" \
+          generate-documentation \
+          --target SwiftFixture \
+          --disable-indexing \
+          --transform-for-static-hosting \
+          --hosting-base-path "${{ env.HOSTING_BASE_PATH }}" \
+          --output-path "${{ env.GENERATED_SITE_PATH }}"
+    - name: Upload Site
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: ${{ env.GENERATED_SITE_PATH }}
+
+  deploy:
+    name: Deploy Documentation
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
