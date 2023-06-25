@@ -9,7 +9,7 @@
     }
   ],
   "defaultOptions" : {
-
+    "codeCoverage" : false
   },
   "testTargets" : [
     {
@@ -17,6 +17,13 @@
         "containerPath" : "container:",
         "identifier" : "SwiftFixtureTests",
         "name" : "SwiftFixtureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftFixtureMacrosTests",
+        "name" : "SwiftFixtureMacrosTests"
       }
     }
   ],
