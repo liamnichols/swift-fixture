@@ -1,8 +1,9 @@
 // swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
-import PackageDescription
 import CompilerPluginSupport
+import Foundation
+import PackageDescription
 
 let package = Package(
     name: "SwiftFixture",
@@ -11,8 +12,7 @@ let package = Package(
         .library(name: "SwiftFixture", targets: ["SwiftFixture"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0-swift-5.9-DEVELOPMENT-SNAPSHOT-2023-04-25-b"),
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"),
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0-swift-5.9-DEVELOPMENT-SNAPSHOT-2023-04-25-b")
     ],
     targets: [
         .target(
@@ -44,3 +44,11 @@ let package = Package(
         )
     ]
 )
+
+// https://swiftpackageindex.com/swiftpackageindex/spimanifest/0.19.0/documentation/spimanifest/validation
+// On CI, we want to validate the manifest, but nobody else needs that.
+if ProcessInfo.processInfo.environment.keys.contains("VALIDATE_SPI_MANIFEST") {
+    package.dependencies.append(
+       .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "0.12.0")
+    )
+}
