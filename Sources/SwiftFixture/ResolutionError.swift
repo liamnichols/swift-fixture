@@ -1,8 +1,8 @@
 import Foundation
 
-///
+/// Describes errors thrown by SwiftFixture when a requested fixture value cannot be resolved.
 public enum ResolutionError: Error {
-    /// An error that is thrown when attempting to resolve a value for a type that is not registered
+    /// An error that is thrown when attempting to resolve a value for a type that is not registered.
     case noProviderRegisteredForType(Any.Type)
 }
 
