@@ -54,7 +54,7 @@ class SummaryTests: XCTestCase {
 
 ## Topics
 
-### Basics
+### Essentials
 
 - ``Fixture``
 
