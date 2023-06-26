@@ -1,8 +1,8 @@
 # SwiftFixture
 
 [![Test Status](https://github.com/liamnichols/swift-fixture/workflows/Tests/badge.svg)](https://github.com/liamnichols/swift-fixture/actions/workflows/tests.yml)
-[![Swift Language Compatibility](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fliamnichols%2Fswift-fixtures%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/liamnichols/swift-fixtures)
-[![Platform Compatibility](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fliamnichols%2Fswift-fixtures%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/liamnichols/swift-fixtures)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fliamnichols%2Fswift-fixture%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/liamnichols/swift-fixture)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fliamnichols%2Fswift-fixture%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/liamnichols/swift-fixture)
 
 SwiftFixture is a tool to help you in writing clean and concise unit tests by standardizing the creation of fixture values.
 
