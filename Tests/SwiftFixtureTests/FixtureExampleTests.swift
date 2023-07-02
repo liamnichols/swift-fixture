@@ -21,7 +21,7 @@ private struct Group {
 #endif
 
 final class FixtureExampleTests: XCTestCase {
-    let fixture = Fixture(preferredFormat: .random)
+    let fixture = Fixture()
 
     override func setUp() {
         super.setUp()

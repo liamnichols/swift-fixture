@@ -53,7 +53,10 @@ final class FixtureTests: XCTestCase {
     }
 
     func testRegisteredModel() throws {
-        let fixture = Fixture(preferredFormat: .constant)
+        let fixture = Fixture()
+        fixture.register(String.self) { "" }
+        fixture.register(Date.self) { Date(timeIntervalSinceReferenceDate: 0) }
+        fixture.register(Bool.self) { false }
         fixture.register(TestEnum.self) { .one }
         fixture.register(TestModel.self) { values in
             TestModel(
