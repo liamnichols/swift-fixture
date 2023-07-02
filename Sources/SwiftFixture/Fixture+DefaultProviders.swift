@@ -1,5 +1,9 @@
 import Foundation
 
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
+
 extension Fixture {
     func registerDefaultProviders() {
         // Standard Library
@@ -23,6 +27,36 @@ extension Fixture {
         // Foundation
         register(UUID.self) { UUID() }
         register(URL.self)  { URL(string: "https://www.\(UUID().uuidString.lowercased()).com/")! }
-        register(Date.self) { Date(timeIntervalSinceReferenceDate: TimeInterval.random(in: 0 ... Date().timeIntervalSinceReferenceDate)) }
+        register(Date.self) { Date(timeIntervalSinceReferenceDate: .random(in: 0 ... Date().timeIntervalSinceReferenceDate)) }
+
+        #if canImport(CoreGraphics)
+        register(CGFloat.self) { .random(in: 0 ... 2048) }
+        register(CGPoint.self) { values in
+            CGPoint(
+                x: try values.get("x") as CGFloat,
+                y: try values.get("y") as CGFloat
+            )
+        }
+        register(CGSize.self) { values in
+            CGSize(
+                width: try values.get("width") as CGFloat,
+                height: try values.get("height") as CGFloat
+            )
+        }
+        register(CGRect.self) { values in
+            CGRect(
+                x: try values.get("x") as CGFloat,
+                y: try values.get("y") as CGFloat,
+                width: try values.get("width") as CGFloat,
+                height: try values.get("height") as CGFloat
+            )
+        }
+        register(CGVector.self) { values in
+            CGVector(
+                dx: try values.get("dx") as CGFloat,
+                dy: try values.get("dy") as CGFloat
+            )
+        }
+        #endif
     }
 }
