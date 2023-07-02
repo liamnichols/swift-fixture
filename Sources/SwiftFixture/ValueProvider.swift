@@ -14,7 +14,7 @@ public class ValueProvider {
 
     public func value<T>(labelled label: String? = nil) throws -> T {
         // If an override was provided for the requested argument, try and use it
-        if let label, let override = overrides[label] {
+        if let label = label, let override = overrides[label] {
             if let value = override as? T {
                 consumedOverrides.insert(label)
                 return value
