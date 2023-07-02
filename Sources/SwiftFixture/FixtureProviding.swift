@@ -11,9 +11,9 @@
 ///
 ///     static func provideFixture(using values: ValueProvider) throws -> User {
 ///         User(
-///             id: try values.value(labelled: "id"),
-///             name: try values.value(labelled: "name"),
-///             location: try values.value(labelled: "location")
+///             id: try values.get("id"),
+///             name: try values.get("name"),
+///             location: try values.get("location")
 ///         )
 ///     }
 /// }

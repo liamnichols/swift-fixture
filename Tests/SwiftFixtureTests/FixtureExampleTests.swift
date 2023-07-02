@@ -12,6 +12,14 @@ struct Item: Equatable {
     let owner: User
 }
 
+#if compiler(>=5.9)
+@ProvideFixture
+struct Group {
+    let id: UUID
+    let title: String
+}
+#endif
+
 final class FixtureExampleTests: XCTestCase {
     let fixture = Fixture(preferredFormat: .random)
 
@@ -20,16 +28,16 @@ final class FixtureExampleTests: XCTestCase {
 
         fixture.register(User.self) { values in
             User(
-                id: try values.value(labelled: "id"),
-                name: try values.value(labelled: "name"),
-                createdAt: try values.value(labelled: "createdAt")
+                id: try values.get("id"),
+                name: try values.get("name"),
+                createdAt: try values.get("createdAt")
             )
         }
 
         fixture.register(Item.self) { values in
             Item(
-                title: try values.value(labelled: "title"),
-                owner: try values.value(labelled: "owner")
+                title: try values.get("title"),
+                owner: try values.get("owner")
             )
         }
     }
@@ -53,4 +61,13 @@ final class FixtureExampleTests: XCTestCase {
         let items: [Date] = Array(repeating: try fixture(), count: 3)
         XCTAssertEqual(items.count, 3)
     }
+
+    #if compiler(>=5.9)
+    func testMacro() throws {
+        let title = "Group Fixture"
+        let group: Group = try fixture(title: title)
+
+        XCTAssertEqual(group.title, title)
+    }
+    #endif
 }

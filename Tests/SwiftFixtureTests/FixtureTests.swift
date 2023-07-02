@@ -17,7 +17,7 @@ final class FixtureTests: XCTestCase {
         let name: String
 
         static func provideFixture(using values: ValueProvider) throws -> Container {
-            Container(id: try values.value(labelled: "id"), name: try values.value(labelled: "name"))
+            Container(id: try values.get("id"), name: try values.get("name"))
         }
     }
 
@@ -57,11 +57,11 @@ final class FixtureTests: XCTestCase {
         fixture.register(TestEnum.self) { .one }
         fixture.register(TestModel.self) { values in
             TestModel(
-                string: try values.value(labelled: "string"),
-                date: try values.value(labelled: "date"),
-                boolean: try values.value(labelled: "boolean"),
-                enumeration: try values.value(labelled: "enumeration"),
-                unregisteredType: try values.value(labelled: "unregisteredType")
+                string: try values.get("string"),
+                date: try values.get("date"),
+                boolean: try values.get("boolean"),
+                enumeration: try values.get("enumeration"),
+                unregisteredType: try values.get("unregisteredType")
             )
         }
 

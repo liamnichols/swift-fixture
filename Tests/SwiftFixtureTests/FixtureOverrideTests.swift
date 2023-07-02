@@ -14,8 +14,8 @@ final class FixtureOverrideTests: XCTestCase {
 
         static func provideFixture(using values: ValueProvider) throws -> Self {
             ProvidingSubject(
-                id: try values.value(labelled: "id"),
-                name: try values.value(labelled: "name")
+                id: try values.get("id"),
+                name: try values.get("name")
             )
         }
     }
@@ -27,8 +27,8 @@ final class FixtureOverrideTests: XCTestCase {
 
         fixture.register(RegisteredSubject.self) { values in
             RegisteredSubject(
-                id: try values.value(labelled: "id"),
-                name: try values.value(labelled: "name")
+                id: try values.get("id"),
+                name: try values.get("name")
             )
         }
     }

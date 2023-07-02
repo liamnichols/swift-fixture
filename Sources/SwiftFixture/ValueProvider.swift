@@ -12,7 +12,7 @@ public class ValueProvider {
         self.targetType = targetType
     }
 
-    public func value<T>(labelled label: String? = nil) throws -> T {
+    public func get<T>(_ label: String? = nil) throws -> T {
         // If an override was provided for the requested argument, try and use it
         if let label = label, let override = overrides[label] {
             if let value = override as? T {

@@ -34,8 +34,8 @@ final class TestMacroTests: XCTestCase {
                 var notBaz: Bool {
                     !baz
                 }
-                public static func provideFixture(using fixture: Fixture) throws -> Self {
-                    Self(bar1: try fixture(), bar2: try fixture(), baz: try fixture(), wham: try fixture())
+                public static func provideFixture(using values: ValueProvider) throws -> Self {
+                    Self(bar1: try values.get("bar1"), bar2: try values.get("bar2"), baz: try values.get("baz"), wham: try values.get("wham"))
                 }
             }
             """#,
@@ -67,8 +67,8 @@ final class TestMacroTests: XCTestCase {
                     self.bar = bar
                     self.baz = wham
                 }
-                public static func provideFixture(using fixture: Fixture) throws -> Self {
-                    Self(try fixture(), wham: try fixture())
+                public static func provideFixture(using values: ValueProvider) throws -> Self {
+                    Self(try values.get(), wham: try values.get("wham"))
                 }
             }
             """#,
@@ -100,8 +100,8 @@ final class TestMacroTests: XCTestCase {
                     self.bar = bar
                     self.baz = wham
                 }
-                public static func provideFixture(using fixture: Fixture) throws -> Self {
-                    try Self(try fixture(), wham: try fixture())
+                public static func provideFixture(using values: ValueProvider) throws -> Self {
+                    try Self(try values.get(), wham: try values.get("wham"))
                 }
             }
             """#,
