@@ -4,102 +4,118 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fliamnichols%2Fswift-fixture%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/liamnichols/swift-fixture)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fliamnichols%2Fswift-fixture%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/liamnichols/swift-fixture)
 
-SwiftFixture is a tool to help you in writing clean and concise unit tests by standardizing the creation of fixture values.
+A simple framework for managing test fixtures in Swift.
+
+- [Overview](#overview)
+- [Why?](#why)
+- [How?](#how)
+- [Inspiration](#inspiration)
 
 ## Overview
 
-With SwiftFixture, you can effortlessly instantiate values that are then passed into your test subject
+SwiftFixture provides a set of tools designed to help make it easy for you to instantiate and organize values of your own Swift types for use as fixtures during unit testing.
 
 ```swift
-func sum(_ numbers: Int...) -> Int {
-    numbers.reduce(0, +)
-}
-
-let fixture = Fixture()
-
-func testSum() throws {
-    let number1: Int = try fixture()
-    let number2: Int = try fixture()
-
-    let expected = number1 + number2
-    let actual = sum(number1, number2)
-
-    XCTAssertEqual(expected, actual)
-}
-```
-
-SwiftFixture can resolve values for a range of standard system types. By default, `Fixture` prefers randomness in values returned however, you can customize this behavior:
-
-```swift
-let fixture = Fixture(preferredFormat: .constant)
-
-let value: Int = try fixture() // 0
-```
-
-Additionally, you can register your own providers to change the behavior of system type value resolution or to resolve fixtures for your own types:
-
-```swift
-let fixture = Fixture()
-
-fixture.register(User.self) { fixture in
-    User(
-        id: try fixture(),
-        name: try fixture(),
-        isActive: try fixture(),
-        createdAt: try fixture()
-    )
-}
-
-let user: User = try fixture()
-// ▿ User
-//   ▿ id: C83AEAF9-EF48-4EEB-9684-EACA9AF2D6FE
-//     - uuid: "C83AEAF9-EF48-4EEB-9684-EACA9AF2D6FE"
-//   - name: "6b206c8d-3c4a-43b2-ac6a-5566e30c9f2d"
-//   - isActive: false
-//   ▿ createdAt: 2017-04-19 13:17:51 +0000
-//     - timeIntervalSinceReferenceDate: 514300671.0827724
-```
-
-Registering custom providers (i.e in the `setUp()` method) helps keep your individual test methods concise since you don't need to directly invoke potentially lengthy initializers of objects with values that you don't actually care about purely to satisfy the compiler.
-
-Alternatively, you can add conformance to the `FixtureProviding` protocol to avoid having to register types each time.
-
-## Macro Support
-
-As an alternative to manually registering each of your own types for use with `Fixture`, you can also use the `@ProvideFixture` macro (in Swift 5.9 or later) to generate conformance to the `FixtureProviding` protocol as follows:
-
-```swift
-import SwiftFixture
-
 @ProvideFixture
 struct User {
     let id: UUID
     let name: String
-    let isActive: Bool
     let createdAt: Date
+    let isActive: Bool
 }
-```
 
-<details>
-<summary><b>Expand Macro</b></summary>
-
-```swift
-import SwiftFixture
-
-struct User {
-    let id: UUID
-    let name: String
-    let isActive: Bool
-    let createdAt: Date
-    public static func provideFixture(using fixture: Fixture) throws -> Self {
-        Self(id: try fixture(), name: try fixture(), isActive: try fixture(), createdAt: try fixture())
+func getSummary(for user: User) -> String {
+    if user.isActive {
+        return "\(user.name) is currently active!"
+    } else {
+        return "\(user.name) is not active."
     }
 }
-
-extension User : FixtureProviding  {}
 ```
 
-</details>
+```swift
+class UserTests: XCTestCase {
+    let fixture = Fixture()
+    
+    func testSummaryForActiveUser() throws {
+        let user: User = try fixture(isActive: true)
+        
+        XCTAssertEqual(getSummary(for: user), "\(user.name) is active!")
+    }
+}
+```
+
+## Why?
+
+Every unit test needs a fixture. Put simply, a fixture is just a piece of information that controls the environment of the test. When testing Swift code, types are your fixtures, like `user` in the above example.
+
+With every unit test written, you will find yourself needing to initialize values more and more. This can start to become repetitive and as your types grow in complexity, it's likely that the initializer argument list also grows. It's not uncommon to eventually find yourself writing something like this:
+
+```swift
+func testStateForSubscribedUser() {
+    let user = User(
+        id: UUID(),
+        name: "ksdf",
+        itemCount: 0,
+        createdAt: Date(),
+        subscription: Subscription(
+            id: UUID(),
+            startedAt: Date(),
+            expires: Date(),
+            paymentMethod: .iap,
+            referralCode: nil
+        ),
+        profileState: .complete,
+        avatar: nil
+    )
+    
+    XCTAssertEqual(user.state, .subscribed)
+}
+
+func testStateForUserWithoutSubscription() {
+    let user = User(
+        id: UUID(),
+        name: "ksdf",
+        itemCount: 0,
+        createdAt: Date(),
+        subscription: nil,
+        profileState: .complete,
+        avatar: nil
+    )
+    
+    XCTAssertEqual(user.state, .unsubscribed)
+}
+
+func testStateForUserWithExpiredSubscription() {
+    let user = User(
+        id: UUID(),
+        name: "ksdf",
+        itemCount: 0,
+        createdAt: Date(),
+        subscription: Subscription(
+            id: UUID(),
+            startedAt: Date(timeIntervalSinceReferenceDate: 0),
+            expires: Date(timeIntervalSinceNow: -10),
+            paymentMethod: .iap,
+            referralCode: nil
+        ),
+        profileState: .complete,
+        avatar: nil
+    )
+    
+    XCTAssertEqual(user.state, .expired)
+}
+```
+
+The three _simple_ tests above end up using 90% more lines of code than they really needed and overall things end up pretty noisy. Additionally, making unrelated changes to `User` such as adding a new property require that we go back and add a new default value to each test when that property shouldn't even have been associated with this test in the first place.
+
+With a few helper methods, you can certainly improve this a bit, but it can be hard to do so consistently when you end up having to write your own helpers. Furthermore, it is also very tempting to do things that influence your production code, such as providing default values on the main initializer.
+
+SwiftFixture is designed to worry about all of this so that you don't have to.
+
+## How?
+
+Check out the [the documentation](https://swiftpackageindex.com/liamnichols/swift-fixture/main/documentation/swiftfixture) for guidance using SwiftFixture.
 
 ## Inspiration
 

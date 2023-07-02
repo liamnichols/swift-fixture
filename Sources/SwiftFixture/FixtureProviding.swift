@@ -21,8 +21,7 @@
 public protocol FixtureProviding {
     /// Provide a fixture value for use in testing.
     ///
-    /// Use the provided ``ValueProvider`` instance to provide values that are used when initialising your own type.
-    /// The value provider supports overrides passed at the call site when using the ``ValueProvider/value(labelled:)`` method.
+    /// Use the provided ``ValueProvider`` instance to obtain values that can then be used when initializing the type.
     ///
     /// - Parameter values: The instance suitable for providing values for the given fixture.
     /// - Returns: An instance of `Self` initialized with values suitable for use in testing.

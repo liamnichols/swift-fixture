@@ -1,20 +1,20 @@
 import SwiftFixture
 import XCTest
 
-struct User: Equatable {
+private struct User: Equatable {
     let id: Int
     let name: String
     let createdAt: Date
 }
 
-struct Item: Equatable {
+private struct Item: Equatable {
     let title: String
     let owner: User
 }
 
 #if compiler(>=5.9)
 @ProvideFixture
-struct Group {
+private struct Group {
     let id: UUID
     let title: String
 }
@@ -43,7 +43,8 @@ final class FixtureExampleTests: XCTestCase {
     }
 
     func testExample() throws {
-        let item: Item = try fixture(title: "Custom Title")
+        let title = "Custom Title"
+        let item: Item = try fixture(title: title)
         // ▿ SwiftFixtureTests.Item
         //   - title: "Custom Title"
         //   ▿ owner: SwiftFixtureTests.User
@@ -54,7 +55,7 @@ final class FixtureExampleTests: XCTestCase {
 
         // ...
         XCTAssertNotNil(item)
-        XCTAssertEqual(item.title, "Custom Title")
+        XCTAssertEqual(item.title, title)
     }
 
     func testArray() throws {
