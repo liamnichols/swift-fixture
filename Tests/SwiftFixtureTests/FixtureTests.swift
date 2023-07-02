@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftFixture
 
 final class FixtureTests: XCTestCase {
-    struct UnregisteredType: Equatable {
+    struct UnregisteredType: Hashable {
     }
     
     enum EmptyEnum: CaseIterable, Equatable {
@@ -39,14 +39,23 @@ final class FixtureTests: XCTestCase {
         XCTAssertEqual(try fixture() as Int, 42)
         XCTAssertEqual(try fixture() as TestEnum, .three)
         XCTAssertEqual(try fixture() as Container, .init(id: 42, name: "foo"))
+        XCTAssertEqual(try fixture() as [Int], [42])
+        XCTAssertEqual(try fixture() as Set<String>, ["foo"])
+        XCTAssertEqual(try fixture() as [String: Int], ["foo": 42])
 
         // Optional
         XCTAssertEqual(try fixture() as Int?, 42)
         XCTAssertEqual(try fixture() as TestEnum?, .three)
         XCTAssertEqual(try fixture() as Container?, .init(id: 42, name: "foo"))
+        XCTAssertEqual(try fixture() as [Int]?, [42])
+        XCTAssertEqual(try fixture() as Set<String>?, ["foo"])
+        XCTAssertEqual(try fixture() as [String: Int]?, ["foo": 42])
 
         // Unregistered
         XCTAssertEqual(try fixture() as UnregisteredType?, nil)
+        XCTAssertEqual(try fixture() as [UnregisteredType], [])
+        XCTAssertEqual(try fixture() as Set<UnregisteredType>, [])
+        XCTAssertEqual(try fixture() as [String: UnregisteredType], [:])
         XCTAssertThrowsError(try fixture() as UnregisteredType) { error in
             XCTAssertTrue(error is ResolutionError)
         }

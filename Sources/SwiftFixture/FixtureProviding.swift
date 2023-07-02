@@ -27,3 +27,34 @@ public protocol FixtureProviding {
     /// - Returns: An instance of `Self` initialized with values suitable for use in testing.
     static func provideFixture(using values: ValueProvider) throws -> Self
 }
+
+// MARK: - Containers
+extension Array: FixtureProviding {
+    public static func provideFixture(using values: ValueProvider) throws -> Array<Element> {
+        if let value: Element = try? values.get() {
+            return [value]
+        } else {
+            return Array()
+        }
+    }
+}
+
+extension Set: FixtureProviding {
+    public static func provideFixture(using values: ValueProvider) throws -> Set<Element> {
+        if let value: Element = try? values.get() {
+            return [value]
+        } else {
+            return Set()
+        }
+    }
+}
+
+extension Dictionary: FixtureProviding {
+    public static func provideFixture(using values: ValueProvider) throws -> Dictionary<Key, Value> {
+        if let key: Key = try? values.get(), let value: Value = try? values.get() {
+            return [key: value]
+        } else {
+            return Dictionary()
+        }
+    }
+}
