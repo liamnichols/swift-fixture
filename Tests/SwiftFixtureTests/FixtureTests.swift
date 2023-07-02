@@ -16,8 +16,8 @@ final class FixtureTests: XCTestCase {
         let id: Int
         let name: String
 
-        static func provideFixture(using fixture: Fixture) throws -> Container {
-            Container(id: try fixture(), name: try fixture())
+        static func provideFixture(using values: ValueProvider) throws -> Container {
+            Container(id: try values.get("id"), name: try values.get("name"))
         }
     }
 
@@ -55,13 +55,13 @@ final class FixtureTests: XCTestCase {
     func testRegisteredModel() throws {
         let fixture = Fixture(preferredFormat: .constant)
         fixture.register(TestEnum.self) { .one }
-        fixture.register(TestModel.self) { fixture in
+        fixture.register(TestModel.self) { values in
             TestModel(
-                string: try fixture(),
-                date: try fixture(),
-                boolean: try fixture(),
-                enumeration: try fixture(),
-                unregisteredType: try fixture()
+                string: try values.get("string"),
+                date: try values.get("date"),
+                boolean: try values.get("boolean"),
+                enumeration: try values.get("enumeration"),
+                unregisteredType: try values.get("unregisteredType")
             )
         }
 
@@ -73,17 +73,5 @@ final class FixtureTests: XCTestCase {
             enumeration: .one,
             unregisteredType: nil
         ))
-    }
-
-    func testArray() {
-        let fixture = Fixture()
-        var value = 0
-        fixture.register(Int.self) {
-            value += 1
-            return value
-        }
-
-        XCTAssertEqual(try fixture(count: 3) as [Int], [1, 2, 3])
-        XCTAssertEqual(try fixture(count: 3) as [Int]?, [4, 5, 6])
     }
 }

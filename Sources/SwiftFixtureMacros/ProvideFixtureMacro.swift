@@ -15,29 +15,37 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
         providingMembersOf declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        // Discover the initializer aguments
+        // Discover the initializer arguments
         let initializer = try initializerContext(for: declaration)
 
-        // Create the provideFixutre implementation calling through to the initialiser
-        // public static func provideFixture(using fixture: Fixture) throws -> Self { ... }
+        // Create the provideFixture implementation calling through to the initialiser
+        // public static func provideFixture(using values: ValueProvider) throws -> Self { ... }
         let functionDecl = try FunctionDeclSyntax(
-            "public static func provideFixture(using fixture: Fixture) throws -> \(initializer.typeIdentifier)"
+            "public static func provideFixture(using values: ValueProvider) throws -> \(initializer.typeIdentifier)"
         ) {
             CodeBlockItemListSyntax {
 
-                // Self(foo: try fixture(), bar: try fixture())
+                // Self(foo: try values.get("foo"), bar: try values.get("bar"))
                 FunctionCallExprSyntax(callee: IdentifierExprSyntax(identifier: initializer.typeIdentifier)) {
                     for label in initializer.argumentLabels {
 
-                        // foo: try fixture()
+
+                        // foo: try values.get("foo")
                         TupleExprElementSyntax(
                             label: label,
                             expression: TryExprSyntax(
                                 expression: FunctionCallExprSyntax(
                                     callee: IdentifierExprSyntax(
-                                        identifier: "fixture"
+                                        identifier: "values.get"
                                     )
-                                )
+                                ) {
+                                    if let label = label {
+                                        TupleExprElementSyntax(
+                                            label: nil,
+                                            expression: StringLiteralExprSyntax(content: label)
+                                        )
+                                    }
+                                }
                             )
                         )
                     }

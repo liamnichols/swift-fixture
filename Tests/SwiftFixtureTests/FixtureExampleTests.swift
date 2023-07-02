@@ -1,16 +1,24 @@
 import SwiftFixture
 import XCTest
 
-struct User: Equatable {
+private struct User: Equatable {
     let id: Int
     let name: String
     let createdAt: Date
 }
 
-struct Item: Equatable {
+private struct Item: Equatable {
     let title: String
     let owner: User
 }
+
+#if compiler(>=5.9)
+@ProvideFixture
+private struct Group {
+    let id: UUID
+    let title: String
+}
+#endif
 
 final class FixtureExampleTests: XCTestCase {
     let fixture = Fixture(preferredFormat: .random)
@@ -18,18 +26,27 @@ final class FixtureExampleTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        fixture.register(User.self) { fixture in
-            User(id: try fixture(), name: try fixture(), createdAt: try fixture())
+        fixture.register(User.self) { values in
+            User(
+                id: try values.get("id"),
+                name: try values.get("name"),
+                createdAt: try values.get("createdAt")
+            )
         }
-        fixture.register(Item.self) { fixture in
-            Item(title: try fixture(), owner: try fixture())
+
+        fixture.register(Item.self) { values in
+            Item(
+                title: try values.get("title"),
+                owner: try values.get("owner")
+            )
         }
     }
 
     func testExample() throws {
-        let item: Item = try fixture()
+        let title = "Custom Title"
+        let item: Item = try fixture(title: title)
         // ▿ SwiftFixtureTests.Item
-        //   - title: "f691a87e-1a93-4fea-b139-c1e0847df514"
+        //   - title: "Custom Title"
         //   ▿ owner: SwiftFixtureTests.User
         //     - id: 6001929140874424963
         //     - name: "95bc0c41-90e6-4ab7-a10a-cbef6ab47a25"
@@ -38,19 +55,20 @@ final class FixtureExampleTests: XCTestCase {
 
         // ...
         XCTAssertNotNil(item)
+        XCTAssertEqual(item.title, title)
     }
 
     func testArray() throws {
-        let items: [Date] = try fixture(count: 3)
-        // ▿ 3 elements
-        //   ▿ 2010-02-04 03:30:59 +0000
-        //     - timeIntervalSinceReferenceDate: 286947059.05920434
-        //   ▿ 2016-04-23 21:02:54 +0000
-        //     - timeIntervalSinceReferenceDate: 483138174.7929988
-        //   ▿ 2007-04-23 09:55:57 +0000
-        //     - timeIntervalSinceReferenceDate: 199014957.40783462
-
-        // ...
+        let items: [Date] = Array(repeating: try fixture(), count: 3)
         XCTAssertEqual(items.count, 3)
     }
+
+    #if compiler(>=5.9)
+    func testMacro() throws {
+        let title = "Group Fixture"
+        let group: Group = try fixture(title: title)
+
+        XCTAssertEqual(group.title, title)
+    }
+    #endif
 }
