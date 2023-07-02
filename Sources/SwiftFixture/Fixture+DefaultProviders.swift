@@ -18,6 +18,7 @@ extension Fixture {
         register(Bool.self)      { .random() }
         register(String.self)    { UUID().uuidString.lowercased() } 
         register(Character.self) { UUID().uuidString.first! }
+        register(Data.self)      { Data((0 ..< 16).map({ _ in UInt8.random(in: .min ... .max) })) }
 
         // Foundation
         register(UUID.self) { UUID() }
