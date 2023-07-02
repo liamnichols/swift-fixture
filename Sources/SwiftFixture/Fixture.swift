@@ -61,11 +61,9 @@ open class Fixture {
     /// A lookup of closures used to provide fixture values keyed by the type name
     private var providers: [String: AnyProvider] = [:]
 
-    /// Creates a fixture instance with builtin fixture types using the preferred format provided.
-    ///
-    /// - Parameter preferredFormat: The preferred format used when vending fixture values. Defaults to ``PreferredFormat/random``.
-    public init(preferredFormat: PreferredFormat = .random) {
-        registerDefaults(using: preferredFormat)
+    /// Creates a new instance for vending fixture values
+    public init() {
+        registerDefaultProviders()
     }
 }
 
