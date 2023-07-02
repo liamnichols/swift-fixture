@@ -60,7 +60,7 @@ class SummaryTests: XCTestCase {
     let fixture = Fixture()
 
     func testSummaryForActiveUser() throws {
-        var user = try fixture(User.self)
+        var user: User = try fixture()
         user.isActive = true
 
         let actual = getSummary(for: user)
@@ -80,7 +80,7 @@ The ``Fixture`` class has a primary callable interface used to obtain a fixture 
 ```swift
 let fixture = Fixture(preferredFormat: .random)
 
-let value = try fixture(Int.self) // Int.random(in:)
+let value: Int = try fixture() // Int.random(in:)
 ```
 
 ### Registering value providers
@@ -94,7 +94,7 @@ fixture.register(User.self) { fixture in
     User(id: try fixture(), name: try fixture(), createdAt: try fixture(), isActive: try fixture())
 }
 
-let value = try fixture(User.self) // User.init(id:name:createdAt:isActive:)
+let value: User = try fixture() // User.init(id:name:createdAt:isActive:)
 ```
 
 If a type hasn't been registered, the ``ResolutionError`` type will instead be thrown. This is the only error thrown by ``Fixture`` itself, but your own value providers can also throw other errors as well (i.e if they relied on a throwable initializer).

@@ -8,14 +8,6 @@ final class FixtureTests: XCTestCase {
     enum EmptyEnum: CaseIterable, Equatable {
     }
     
-    struct TestRawRepresentable: RawRepresentable, Equatable {
-        let rawValue: UnregisteredType
-    }
-    
-    struct StringRepresentable: RawRepresentable, Equatable {
-        let rawValue: String
-    }
-    
     enum TestEnum: CaseIterable, Equatable {
         case one, two, three
     }
@@ -34,7 +26,6 @@ final class FixtureTests: XCTestCase {
         let date: Date
         let boolean: Bool
         let enumeration: TestEnum
-        let stringRepresentable: StringRepresentable
         let unregisteredType: UnregisteredType?
     }
 
@@ -45,77 +36,20 @@ final class FixtureTests: XCTestCase {
         fixture.register(TestEnum.self) { .three }
 
         // Regular Value
-        XCTAssertEqual(try fixture(Int.self), 42)
-        XCTAssertEqual(try fixture(StringRepresentable.self), StringRepresentable(rawValue: "foo"))
-        XCTAssertEqual(try fixture(TestEnum.self), .three)
-        XCTAssertEqual(try fixture(Container.self), Container(id: 42, name: "foo"))
+        XCTAssertEqual(try fixture() as Int, 42)
+        XCTAssertEqual(try fixture() as TestEnum, .three)
+        XCTAssertEqual(try fixture() as Container, .init(id: 42, name: "foo"))
 
         // Optional
-        XCTAssertEqual(try fixture(Int?.self), 42)
-        XCTAssertEqual(try fixture(StringRepresentable?.self), StringRepresentable(rawValue: "foo"))
-        XCTAssertEqual(try fixture(TestEnum?.self), .three)
-        XCTAssertEqual(try fixture(Container?.self), Container(id: 42, name: "foo"))
-    }
+        XCTAssertEqual(try fixture() as Int?, 42)
+        XCTAssertEqual(try fixture() as TestEnum?, .three)
+        XCTAssertEqual(try fixture() as Container?, .init(id: 42, name: "foo"))
 
-    func testValue() {
-        let fixture = Fixture()
-        fixture.register(Int.self) { 42 }
-
-        XCTAssertEqual(try fixture.value(for: Int.self), 42)
-    }
-
-    func testValue_throwsIfNotRegistered() {
-        let fixture = Fixture()
-
-        XCTAssertThrowsError(try fixture.value(for: FixtureTests.self)) { error in
+        // Unregistered
+        XCTAssertEqual(try fixture() as UnregisteredType?, nil)
+        XCTAssertThrowsError(try fixture() as UnregisteredType) { error in
             XCTAssertTrue(error is ResolutionError)
         }
-    }
-
-    func testValue_overload_rawRepresentable() {
-        let fixture = Fixture()
-        fixture.register(String.self) { "foo" }
-
-        XCTAssertEqual(try fixture.value(for: StringRepresentable.self), StringRepresentable(rawValue: "foo"))
-    }
-
-    func testValue_overload_rawRepresentable_prioritisesRegisteredProvider() {
-        let fixture = Fixture()
-        fixture.register(StringRepresentable.self) { StringRepresentable(rawValue: "bar") }
-
-        XCTAssertEqual(try fixture.value(for: StringRepresentable.self), StringRepresentable(rawValue: "bar"))
-    }
-
-    func testValue_overload_caseIterable() {
-        let fixture = Fixture()
-
-        XCTAssertNoThrow(try fixture.value(for: TestEnum.self))
-    }
-
-    func testValue_overload_caseIterable_prioritisesRegisteredProvider() {
-        let fixture = Fixture()
-        fixture.register(TestEnum.self) { .two }
-
-        XCTAssertEqual(try fixture.value(for: TestEnum.self), .two)
-    }
-
-    func testValue_optional() {
-        let fixture = Fixture()
-        fixture.register(Int.self) { 42 }
-        fixture.register(String.self) { "foo" }
-        fixture.register(TestEnum.self) { .three }
-
-        XCTAssertEqual(try fixture.value(for: Int?.self), 42)
-        XCTAssertEqual(try fixture.value(for: StringRepresentable?.self), StringRepresentable(rawValue: "foo"))
-        XCTAssertEqual(try fixture.value(for: TestEnum?.self), .three)
-    }
-
-    func testValue_optional_usesNilIfNoValueFound() {
-        let fixture = Fixture()
-
-        XCTAssertNil(try fixture.value(for: UnregisteredType?.self))
-        XCTAssertNil(try fixture.value(for: TestRawRepresentable?.self))
-        XCTAssertNil(try fixture.value(for: EmptyEnum?.self))
     }
 
     func testRegisteredModel() throws {
@@ -127,7 +61,6 @@ final class FixtureTests: XCTestCase {
                 date: try fixture(),
                 boolean: try fixture(),
                 enumeration: try fixture(),
-                stringRepresentable: try fixture(),
                 unregisteredType: try fixture()
             )
         }
@@ -138,8 +71,19 @@ final class FixtureTests: XCTestCase {
             date: Date(timeIntervalSinceReferenceDate: 0),
             boolean: false,
             enumeration: .one,
-            stringRepresentable: .init(rawValue: ""),
             unregisteredType: nil
         ))
+    }
+
+    func testArray() {
+        let fixture = Fixture()
+        var value = 0
+        fixture.register(Int.self) {
+            value += 1
+            return value
+        }
+
+        XCTAssertEqual(try fixture(count: 3) as [Int], [1, 2, 3])
+        XCTAssertEqual(try fixture(count: 3) as [Int]?, [4, 5, 6])
     }
 }

@@ -18,8 +18,8 @@ func sum(_ numbers: Int...) -> Int {
 let fixture = Fixture()
 
 func testSum() throws {
-    let number1 = try fixture(Int.self)
-    let number2 = try fixture(Int.self)
+    let number1: Int = try fixture()
+    let number2: Int = try fixture()
 
     let expected = number1 + number2
     let actual = sum(number1, number2)
@@ -50,7 +50,7 @@ fixture.register(User.self) { fixture in
     )
 }
 
-let user = try fixture(User.self)
+let user: User = try fixture()
 // ▿ User
 //   ▿ id: C83AEAF9-EF48-4EEB-9684-EACA9AF2D6FE
 //     - uuid: "C83AEAF9-EF48-4EEB-9684-EACA9AF2D6FE"
