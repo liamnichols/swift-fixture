@@ -18,7 +18,7 @@
 ///
 /// `Fixture` is a [Callable type](https://github.com/apple/swift-evolution/blob/main/proposals/0253-callable.md) so values are retrieved using function call syntax.
 ///
-/// For your own container types, use the ``register(_:provideValue:)-i0ea`` method to configure a provider for that given type:
+/// For your own container types, use the ``register(_:provideValue:)-7fin6`` method to configure a provider for that given type:
 ///
 /// ```swift
 /// struct User {
@@ -54,8 +54,9 @@
 /// //     - 4965076267247534876
 /// //     - 5467430163130934062
 /// ```
+@dynamicCallable
 open class Fixture {
-    private typealias AnyProvider = () throws -> Any
+    private typealias AnyProvider = (ValueProvider) throws -> Any
 
     /// A lookup of closures used to provide fixture values keyed by the type name
     private var providers: [String: AnyProvider] = [:]
@@ -87,10 +88,8 @@ extension Fixture {
     /// - Parameters:
     ///   - type: The exact type being registered for future resolution
     ///   - provideValue: An escaping closure used to customise the fixture values of the given `type`.
-    public func register<T>(_ type: T.Type, provideValue: @escaping (Fixture) throws -> T) {
-        providers[String(reflecting: type)] = { [unowned self] in
-            try provideValue(self)
-        }
+    public func register<T>(_ type: T.Type, provideValue: @escaping (ValueProvider) throws -> T) {
+        providers[String(reflecting: type)] = provideValue
     }
 
     /// Register a closure used to provide a value for the given type
@@ -107,7 +106,7 @@ extension Fixture {
     ///   - type: The exact type being registered for future resolution
     ///   - provideValue: An escaping closure used to customise the fixture values of the given `type`.
     public func register<T>(_ type: T.Type, provideValue: @escaping () throws -> T) {
-        providers[String(reflecting: type)] = {
+        providers[String(reflecting: type)] = { _ in
             try provideValue()
         }
     }
@@ -115,49 +114,46 @@ extension Fixture {
 
 // MARK: - Value Lookup
 extension Fixture {
-    /// Internal function for providing a fixture value via the registered provider for the given type
-    private func providerValue<T>(for type: Any.Type) throws -> T? {
+    private func value<T>(for type: Any.Type, using valueProvider: ValueProvider) throws -> T? {
+        // Firstly try and retrieve the value from the registered providers since they take priority
         if let provideValue = providers[String(reflecting: type)] {
-            return try provideValue() as? T
-        } else {
-            return nil
+            return try provideValue(valueProvider) as? T
         }
+
+        // Alternatively, the type might conform to FixtureProviding and if so, a value can be loaded via `provideFixture(using:)`
+        if let type = type as? FixtureProviding.Type, let value = try type.provideFixture(using: valueProvider) as? T {
+            return value
+        }
+
+        // Otherwise no value could be provided
+        return nil
     }
 
-    // MARK: Base Overloads
-
-    /// Resolves a fixture value for the given type or throws an error if it cannot be resolved.
-    func value<T>(for type: T.Type) throws -> T {
+    internal func value<T>(for type: T.Type, overrides: [String: Any]) throws -> T {
         // If T is an Optional type, expose the Wrapped type for value lookup
         let optionalType = type as? OptionalProtocol.Type
         let wrappedType = optionalType?.wrappedType ?? type
 
-        // First, check the provider store for a value of the matching wrapped type
-        if let value: T = try providerValue(for: wrappedType) {
+        // Create the ValueProvider class used for providing child values by incorporating overrides.
+        let valueProvider = ValueProvider(fixture: self, overrides: overrides, targetType: wrappedType)
+
+        // Resolve the value to the best of our ability and ensure that all overrides were consumed
+        if let value = (try value(for: wrappedType, using: valueProvider) as T?) {
+            try valueProvider.ensureOverridesConsumed()
             return value
         }
 
-        // Secondly, fallback to using FixtureProviding for the wrapped type
-        if let type = wrappedType as? FixtureProviding.Type {
-            return try type.provideFixture(using: self) as! T
-        }
-
-        // Finally, return the Optional's nil value or throw a resolution error
+        // If a value could not be provided, either fallback to `nil` or throw a resolution error
         if let nilValue = optionalType?.nilValue as? T {
             return nilValue
         } else {
             throw ResolutionError.noProviderRegisteredForType(T.self)
         }
     }
-}
 
-// MARK: - Call As Function
-public extension Fixture {
-    func callAsFunction<T>() throws -> T {
-        try value(for: T.self)
-    }
+    // MARK: Interface
 
-    func callAsFunction<T>(count: Int = 1) throws -> [T] {
-        try (0 ..< count).map { _ in try value(for: T.self) }
+    public func dynamicallyCall<T>(withKeywordArguments overrides: [String: Any]) throws -> T {
+        try value(for: T.self, overrides: overrides)
     }
 }

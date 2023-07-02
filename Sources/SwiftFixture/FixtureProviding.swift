@@ -9,11 +9,11 @@
 ///     let name: String
 ///     let location: Location
 ///
-///     static func provideFixture(using fixture: Fixture) throws -> User {
+///     static func provideFixture(using values: ValueProvider) throws -> User {
 ///         User(
-///             id: try fixture(),
-///             name: try fixture(),
-///             location: try fixture()
+///             id: try values.value(labelled: "id"),
+///             name: try values.value(labelled: "name"),
+///             location: try values.value(labelled: "location")
 ///         )
 ///     }
 /// }
@@ -21,9 +21,10 @@
 public protocol FixtureProviding {
     /// Provide a fixture value for use in testing.
     ///
-    /// Use the provided ``Fixture`` instance to provide values that are used when initialising your own type.
+    /// Use the provided ``ValueProvider`` instance to provide values that are used when initialising your own type.
+    /// The value provider supports overrides passed at the call site when using the ``ValueProvider/value(labelled:)`` method.
     ///
-    /// - Parameter fixture: The instance of ``Fixture`` used for resolving this and other fixture values.
+    /// - Parameter values: The instance suitable for providing values for the given fixture.
     /// - Returns: An instance of `Self` initialized with values suitable for use in testing.
-    static func provideFixture(using fixture: Fixture) throws -> Self
+    static func provideFixture(using values: ValueProvider) throws -> Self
 }

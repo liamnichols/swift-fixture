@@ -85,7 +85,7 @@ let value: Int = try fixture() // Int.random(in:)
 
 ### Registering value providers
 
-By default, providers for common system types (`Int`, `String`, `Bool`, `Date`, `UUID` etc) are provided, but support for other types can be added by using the ``Fixture/register(_:provideValue:)-i0ea`` method:
+By default, providers for common system types (`Int`, `String`, `Bool`, `Date`, `UUID` etc) are provided, but support for other types can be added by using the ``Fixture/register(_:provideValue:)-7fin6`` method:
 
 ```swift
 let fixture = Fixture(preferredFormat: .constant)
@@ -109,4 +109,4 @@ extension User: FixtureProviding {
 }
 ```
 
-The ``FixtureProviding/provideFixture(using:)`` method is used only when a value provider hasn't been registered for the same type using ``Fixture/register(_:provideValue:)-i0ea``. 
+The ``FixtureProviding/provideFixture(using:)`` method is used only when a value provider hasn't been registered for the same type using ``Fixture/register(_:provideValue:)-7fin6``. 
