@@ -23,19 +23,18 @@ extension ResolutionError: CustomDebugStringConvertible {
         switch self {
         case .noProviderRegisteredForType(let type):
             return """
-            A value could not be resolved for the type ‘\(type)‘. \
+            A value could not be resolved for the type \(type). \
             You can register it using the ‘register(_:provideValue:)‘ method, \
             or file an issue if you believe that it should have been resolved automatically.
             """
         case .overrideTypeMismatch(let label, let value, let expectedType):
             return """
-            An override was provided for the argument ‘\(label)‘  but the value \
-            (\(value)) does not match the required type ‘\(expectedType)‘.
+            An override was provided as \(type(of: value)) for the argument ‘\(label)‘ but \
+            \(expectedType) was expected.
             """
         case .unusedOverride(let label, let type):
             return """
-            An override was provided for the argument ‘\(label)‘ \
-            but was unused by the fixture ‘\(type)‘.
+            The argument ‘\(label)‘ was specified but is not used by the fixture for \(type).
             """
         }
     }

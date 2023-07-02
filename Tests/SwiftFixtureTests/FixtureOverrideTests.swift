@@ -44,7 +44,7 @@ final class FixtureOverrideTests: XCTestCase {
             XCTAssertTrue(error is ResolutionError)
             XCTAssertEqual(
                 String(reflecting: error),
-                "An override was provided for the argument ‘name‘  but the value (1) does not match the required type ‘String‘."
+                "An override was provided as Int for the argument ‘name‘ but String was expected."
             )
         }
     }
@@ -54,7 +54,7 @@ final class FixtureOverrideTests: XCTestCase {
             XCTAssertTrue(error is ResolutionError)
             XCTAssertEqual(
                 String(reflecting: error),
-                "An override was provided for the argument ‘unused‘ but was unused by the fixture ‘RegisteredSubject‘."
+                "The argument ‘unused‘ was specified but is not used by the fixture for RegisteredSubject."
             )
         }
     }
@@ -72,7 +72,7 @@ final class FixtureOverrideTests: XCTestCase {
             XCTAssertTrue(error is ResolutionError)
             XCTAssertEqual(
                 String(reflecting: error),
-                "An override was provided for the argument ‘name‘  but the value (1) does not match the required type ‘String‘."
+                "An override was provided as Int for the argument ‘name‘ but String was expected."
             )
         }
     }
@@ -82,7 +82,7 @@ final class FixtureOverrideTests: XCTestCase {
             XCTAssertTrue(error is ResolutionError)
             XCTAssertEqual(
                 String(reflecting: error),
-                "An override was provided for the argument ‘unused‘ but was unused by the fixture ‘ProvidingSubject‘."
+                "The argument ‘unused‘ was specified but is not used by the fixture for ProvidingSubject."
             )
         }
     }
