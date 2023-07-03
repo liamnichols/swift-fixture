@@ -3,8 +3,10 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
+// TODO: Move this
 let testMacros: [String: Macro.Type] = [
-    "ProvideFixture": ProvideFixtureMacro.self
+    "ProvideFixture": ProvideFixtureMacro.self,
+    "initFixture": InitFixtureMacro.self
 ]
 
 final class ProvideFixtureMacroTests: XCTestCase {
