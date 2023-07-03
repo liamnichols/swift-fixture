@@ -20,4 +20,11 @@ public macro ProvideFixture() = #externalMacro(
     module: "SwiftFixtureMacros",
     type: "ProvideFixtureMacro"
 )
+
+/// A macro used for initializing instances of a fixture type using a given ``ValueProvider`` object.
+@freestanding(expression)
+public macro initFixture<T>(using valueProvider: ValueProvider, with unappliedMethodReference: Any) -> T = #externalMacro(
+    module: "SwiftFixtureMacros",
+    type: "InitFixtureMacro"
+)
 #endif
