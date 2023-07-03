@@ -79,8 +79,18 @@ The ``Fixture`` class has a primary callable interface used to obtain a fixture 
 ```swift
 let fixture = Fixture()
 
-let value: Int = try fixture() // Int.random(in:)
+try fixture() as Int
+// - 5363896279182060614
+
+try fixture() as Date
+// ▿ 2008-09-10 18:34:13 +0000
+// - timeIntervalSinceReferenceDate: 242764453.45139748
+
+try fixture() as String
+// - "1b3e9b17-d79a-4056-8f2b-73112694fa5c"
 ```
+
+By default, values produced by ``Fixture`` are done so in a non-deterministic way to encourage [constrained non-determinism](https://blog.ploeh.dk/2009/03/05/ConstrainedNon-Determinism/). This is done to help encourage you to rely less on hardcoded values for expected results as you let SwiftFixture handle things for you.
 
 ### Registering value providers
 
@@ -98,7 +108,14 @@ fixture.register(User.self) { values in
     )
 }
 
-let value: User = try fixture() // User.init(id:name:createdAt:isActive:)
+let value: User = try fixture()
+// ▿ User
+//   ▿ id: 27310087-1F15-4033-B97B-9E6873B48918
+//     - uuid: "27310087-1F15-4033-B97B-9E6873B48918"
+//   - name: "1b3e9b17-d79a-4056-8f2b-73112694fa5c"
+//   ▿ createdAt: 2012-05-24 21:13:02 +0000
+//     - timeIntervalSinceReferenceDate: 359586782.8698358
+//   - isActive: false
 ```
 
 If a type hasn't been registered, the ``ResolutionError/noProviderRegisteredForType(_:)`` error will be thrown instead.
@@ -122,11 +139,20 @@ The ``FixtureProviding/provideFixture(using:)`` method is used only when a value
 
 ### Overriding Values
 
-In the example above, a `User` fixture is created by calling `try fixture(isActive: true)`, but how does this work?
+In addition to creating fixtures entirely with non-deterministic placeholder values, it is not uncommon to want to need to control specific properties. From the `testSummaryForActiveUser()` example above, the `isActive` property needs to always be set to `true` when the test runs:
 
-``Fixture`` is a `@dynamicCallable` type which allows for zero or more arguments to be specified which are then passed into the ``ValueProvider`` instance used for resolving fixture values. 
+```swift
+let user: User = try fixture(isActive: true)
+// ▿ User
+//   ▿ id: 27310087-1F15-4033-B97B-9E6873B48918
+//     - uuid: "27310087-1F15-4033-B97B-9E6873B48918"
+//   - name: "1b3e9b17-d79a-4056-8f2b-73112694fa5c"
+//   ▿ createdAt: 2012-05-24 21:13:02 +0000
+//     - timeIntervalSinceReferenceDate: 359586782.8698358
+//   - isActive: true
+```
 
-At the time of resolution, the call to ``ValueProvider/get(_:)`` uses the optional `label` argument to map a specific fixture argument to the argument used for resolution. 
+This works because ``Fixture`` allows for a dynamic set of arguments to be specified. If the label of an argument matches the label passed into ``ValueProvider``'s ``ValueProvider/get(_:)`` method when producing a fixture, the argument is used instead of a placeholder value.
 
 It's recommended that you match the label used with the original initializer argument label to prevent confusion. The best way to do this is to use the ``ProvideFixture()`` macro which can provide automatic conformance to the ``FixtureProviding`` protocol for your types.
 
