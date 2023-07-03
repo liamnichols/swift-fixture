@@ -35,9 +35,7 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
                             label: label,
                             expression: TryExprSyntax(
                                 expression: FunctionCallExprSyntax(
-                                    callee: IdentifierExprSyntax(
-                                        identifier: "values.get"
-                                    )
+                                    callee: IdentifierExprSyntax(identifier: "values.get")
                                 ) {
                                     if let label = label {
                                         TupleExprElementSyntax(
