@@ -19,7 +19,6 @@ SwiftFixture provides a set of tools designed to help make it easy for you to in
 - ``FixtureProviding``
 - ``ProvideFixture()``
 
-### Misc
+### Errors
 
-- ``PreferredFormat``
 - ``ResolutionError``
