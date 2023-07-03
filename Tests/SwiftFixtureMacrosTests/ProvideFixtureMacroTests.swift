@@ -7,7 +7,7 @@ let testMacros: [String: Macro.Type] = [
     "ProvideFixture": ProvideFixtureMacro.self
 ]
 
-final class TestMacroTests: XCTestCase {
+final class ProvideFixtureMacroTests: XCTestCase {
     func testProvideFixture() {
         assertMacroExpansion(
             #"""
