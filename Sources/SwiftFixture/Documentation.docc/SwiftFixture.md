@@ -13,10 +13,15 @@ SwiftFixture provides a set of tools designed to help make it easy for you to in
 - <doc:Testing-With-SwiftFixture>
 - ``Fixture``
 
-### Registering Custom Types 
+### Registering Types 
 
-- ``ValueProvider``
+- ``Fixture/register(_:provideValue:)-7fin6``
 - ``FixtureProviding``
+- ``ValueProvider``
+
+### Macros
+
+- ``initFixture(using:with:)``
 - ``ProvideFixture()``
 
 ### Errors
