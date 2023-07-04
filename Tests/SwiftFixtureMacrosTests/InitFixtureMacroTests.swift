@@ -8,7 +8,7 @@ final class InitFixtureMacroTests: XCTestCase {
         assertMacroExpansion(
             """
             static func provideValue(using values: ValueProvider) throws -> User {
-                #initFixture(using: values, with: User.init(id:name:createdAt:isActive:))
+                #initFixture(with: values, using: User.init(id:name:createdAt:isActive:))
             }
             """,
             expandedSource: """
@@ -29,7 +29,7 @@ final class InitFixtureMacroTests: XCTestCase {
         assertMacroExpansion(
             """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: User.newUser(name:))
+                try #initFixture(with: values, using: User.newUser(name:))
             }
             """,
             expandedSource: """
@@ -47,7 +47,7 @@ final class InitFixtureMacroTests: XCTestCase {
         assertMacroExpansion(
             """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: User.init(name:_:_:age:))
+                try #initFixture(with: values, using: User.init(name:_:_:age:))
             }
             """,
             expandedSource: """
@@ -68,12 +68,12 @@ final class InitFixtureMacroTests: XCTestCase {
         assertMacroExpansion(
             """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: User.init)
+                try #initFixture(with: values, using: User.init)
             }
             """,
             expandedSource: """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: User.init)
+                try #initFixture(with: values, using: User.init)
             }
             """,
             diagnostics: [
@@ -91,12 +91,12 @@ final class InitFixtureMacroTests: XCTestCase {
         assertMacroExpansion(
             """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: .init(id:name:createdAt:isActive:))
+                try #initFixture(with: values, using: .init(id:name:createdAt:isActive:))
             }
             """,
             expandedSource: """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: .init(id:name:createdAt:isActive:))
+                try #initFixture(with: values, using: .init(id:name:createdAt:isActive:))
             }
             """,
             diagnostics: [
@@ -114,12 +114,12 @@ final class InitFixtureMacroTests: XCTestCase {
         assertMacroExpansion(
             """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: "wrong type")
+                try #initFixture(with: values, using: "wrong type")
             }
             """,
             expandedSource: """
             static func provideValue(using values: ValueProvider) throws -> User {
-                try #initFixture(using: values, with: "wrong type")
+                try #initFixture(with: values, using: "wrong type")
             }
             """,
             diagnostics: [

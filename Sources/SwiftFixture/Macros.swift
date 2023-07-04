@@ -42,7 +42,7 @@ public macro ProvideFixture() = #externalMacro(
 ///         super.setUp()
 ///
 ///         fixture.register(User.self) { values in
-///             return #initFixture(using: values, with: User.init(id:name:createdAt:isActive:))
+///             return #initFixture(with: values, using: User.init(id:name:createdAt:isActive:))
 ///         }
 ///     }
 /// }
@@ -59,7 +59,7 @@ public macro ProvideFixture() = #externalMacro(
 ///
 /// The `#initFixture` macro leverages this syntax because it contains the argument labels of the call that the macro generates while also having compile time guarantees that you are proving the macro with a reference.
 @freestanding(expression)
-public macro initFixture<T>(using valueProvider: ValueProvider, with unappliedMethodReference: Any) -> T = #externalMacro(
+public macro initFixture<T>(with valueProvider: ValueProvider, using unappliedMethodReference: Any) -> T = #externalMacro(
     module: "SwiftFixtureMacros",
     type: "InitFixtureMacro"
 )

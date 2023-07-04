@@ -40,15 +40,15 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
             "public static func provideFixture(using values: ValueProvider) throws -> \(initializer.typeIdentifier)"
         ) {
             CodeBlockItemListSyntax {
-                // #initFixture(using: values, with: TheType.init(foo:bar:))
+                // #initFixture(with: values, using: TheType.init(foo:bar:))
                 MacroExpansionExprSyntax(macro: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
                     TupleExprElementSyntax(
-                        label: "using",
+                        label: "with",
                         expression: IdentifierExprSyntax(identifier: "values")
                     )
 
                     TupleExprElementSyntax(
-                        label: "with",
+                        label: "using",
                         expression: initializer.unappliedMethodReference
                     )
                 }

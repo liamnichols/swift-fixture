@@ -26,7 +26,7 @@ private struct Office: FixtureProviding {
 
     static func provideFixture(using values: ValueProvider) throws -> Office {
         // TODO: Better to demo usage in register(_:valueProvider:) but can't due to https://github.com/apple/swift/issues/67102
-        #initFixture(using: values, with: Office.init(id:name:staff:))
+        #initFixture(with: values, using: Office.init(id:name:staff:))
     }
 }
 #endif

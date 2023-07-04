@@ -53,7 +53,7 @@ public struct InitFixtureMacro: ExpressionMacro {
         from argument: TupleExprElementListSyntax.Element,
         context: Context
     ) throws -> (type: TokenSyntax, name: TokenSyntax?, arguments: [String?]) {
-        guard argument.label?.text == "with" else {
+        guard argument.label?.text == "using" else {
             fatalError("compiler bug: third macro argument must be the intiailizer function signature")
         }
 
