@@ -18,28 +18,26 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
     ) throws -> [DeclSyntax] {
         // Discover the context to be used for this declaration
         let context = try initializerContext(for: declaration)
-        let valuesId = IdentifierExprSyntax(identifier: "values")
 
         // Create the provideFixture implementation calling through to the initialiser
         // public static func provideFixture(using values: ValueProvider) throws -> Self { ... }
+        let valuesId = IdentifierExprSyntax(identifier: "values")
         let functionDecl = try FunctionDeclSyntax(
             "public static func provideFixture(using \(valuesId): ValueProvider) throws -> \(context.typeIdentifier)"
         ) {
-            CodeBlockItemListSyntax {
-                // #initFixture(with: values, using: TheType.init(foo:bar:))
-                MacroExpansionExprSyntax(macro: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
-                    TupleExprElementSyntax(
-                        label: "with",
-                        expression: valuesId
-                    )
+            // #initFixture(with: values, using: TheType.init(foo:bar:))
+            MacroExpansionExprSyntax(macro: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
+                TupleExprElementSyntax(
+                    label: "with",
+                    expression: valuesId
+                )
 
-                    TupleExprElementSyntax(
-                        label: "using",
-                        expression: context.unappliedMethodReference
-                    )
-                }
-                .wrapInTry(context.isThrowing) // try #initFixture(...)
+                TupleExprElementSyntax(
+                    label: "using",
+                    expression: context.unappliedMethodReference
+                )
             }
+            .wrapInTry(context.isThrowing) // try #initFixture(...)
         }
 
         return [
