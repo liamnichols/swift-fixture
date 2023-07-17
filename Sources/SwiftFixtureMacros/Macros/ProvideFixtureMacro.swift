@@ -1,5 +1,6 @@
 import SwiftSyntax
 import SwiftSyntaxBuilder
+import SwiftDiagnostics
 import SwiftSyntaxMacros
 
 public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
@@ -90,23 +91,28 @@ private extension ProvideFixtureMacro {
 
         // Otherwise build the context from the most appropriate initializer decl
         return InitializerContext(
-            decl: try bestInitializer(from: initializers),
+            decl: try bestInitializer(from: initializers, in: declaration),
             typeIdentifier: typeIdentifier
         )
     }
 
     private static func bestInitializer(
-        from initializers: [InitializerDeclSyntax]
+        from initializers: [InitializerDeclSyntax],
+        in declaration: some DeclGroupSyntax
     ) throws -> InitializerDeclSyntax {
         if initializers.isEmpty {
-            throw ExpansionError.noInitializers
+            throw DiagnosticsError(diagnostics: [
+                ProvideFixtureDiagnostic.noInitializers.diagnose(at: declaration)
+            ])
         } else if let initializer = initializers.first, initializers.count == 1 {
             return initializer
         }
 
         // If there are multiple options, either find the first initializer
         // TODO: Check for the marker as a reference to disambiguate
-        throw ExpansionError.tooManyInitializers
+        throw DiagnosticsError(diagnostics: [
+            ProvideFixtureDiagnostic.tooManyInitializers.diagnose(at: declaration)
+        ])
     }
 
     private static func memberwiseInitializerArgumentLabels(
