@@ -15,7 +15,7 @@ public struct InitFixtureMacro: ExpressionMacro {
 
         // Read information from each argument
         let valueProvider = node.argumentList.first!.expression
-        let (type, name, arguments) = try initializerReference(from: node.argumentList.last!, context: context)
+        let (type, name, arguments) = try initializerReference(from: node.argumentList.last!)
 
         // Resolve the callee expression based on the method reference to be used
         let identifier = IdentifierExprSyntax(identifier: type)
@@ -49,9 +49,8 @@ public struct InitFixtureMacro: ExpressionMacro {
         })
     }
 
-    private static func initializerReference<Context: MacroExpansionContext>(
-        from argument: TupleExprElementListSyntax.Element,
-        context: Context
+    private static func initializerReference(
+        from argument: TupleExprElementListSyntax.Element
     ) throws -> (type: TokenSyntax, name: TokenSyntax?, arguments: [String?]) {
         guard argument.label?.text == "using" else {
             fatalError("compiler bug: third macro argument must be the intiailizer function signature")
