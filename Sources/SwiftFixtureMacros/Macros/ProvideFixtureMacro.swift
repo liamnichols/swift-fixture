@@ -26,17 +26,10 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
             "public static func provideFixture(using \(valuesId): ValueProvider) throws -> \(context.typeIdentifier)"
         ) {
             // #initFixture(with: values, using: TheType.init(foo:bar:))
-            MacroExpansionExprSyntax(macro: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
-                TupleExprElementSyntax(
-                    label: "with",
-                    expression: valuesId
-                )
-
-                TupleExprElementSyntax(
-                    label: "using",
-                    expression: context.unappliedMethodReference
-                )
-            }
+            MacroExpansionExprSyntax.initFixture(
+                valueProvider: valuesId,
+                unappliedMethodReference: context.unappliedMethodReference
+            )
             .wrapInTry(context.isThrowing) // try #initFixture(...)
         }
 
