@@ -78,7 +78,7 @@ private extension ProvideFixtureMacro {
     static func initializerContext(for declaration: some DeclGroupSyntax) throws -> InitializerContext {
         // Find all initializers in the declaration
         let initializers = declaration.memberBlock.members.compactMap { $0.decl.as(InitializerDeclSyntax.self) }
-        let typeIdentifier: TokenSyntax = "Self" // TODO: Try and figure out the actual type later?
+        let typeIdentifier = try typeIdentifier(from: declaration)
 
         // If there are none, and it's a struct, assume use of the memberwise init
         if initializers.isEmpty, let declaration = declaration.as(StructDeclSyntax.self) {
@@ -141,6 +141,24 @@ private extension ProvideFixtureMacro {
         }
 
         return labels
+    }
+
+    private static func typeIdentifier(from declaration: some DeclGroupSyntax) throws -> TokenSyntax {
+        // Take the type identifier from the declaration
+        let token = if let declaration = declaration.as(StructDeclSyntax.self) {
+            declaration.identifier
+        } else if let declaration = declaration.as(EnumDeclSyntax.self) {
+            declaration.identifier
+        } else if let declaration = declaration.as(ClassDeclSyntax.self) {
+            declaration.identifier
+        } else {
+            throw DiagnosticsError(diagnostics: [
+                ProvideFixtureDiagnostic.unsupportedMember.diagnose(at: declaration)
+            ])
+        }
+
+        // Return just the literal text to strip out any unwanted trivia
+        return TokenSyntax(stringLiteral: token.text)
     }
 }
 

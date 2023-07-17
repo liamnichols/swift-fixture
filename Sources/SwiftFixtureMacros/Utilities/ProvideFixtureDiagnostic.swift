@@ -6,6 +6,14 @@ struct ProvideFixtureDiagnostic: DiagnosticMessage {
     let diagnosticID: MessageID
     let severity: DiagnosticSeverity
 
+    static var unsupportedMember: Self {
+        ProvideFixtureDiagnostic(
+            message: "@ProvideFixture cannot be attached to this member",
+            diagnosticID: .init(domain: "ProvideFixtureDiagnostic", id: "unsupportedMember"),
+            severity: .error
+        )
+    }
+
     static var noInitializers: Self {
         ProvideFixtureDiagnostic(
             message: "@ProvideFixture requires that at least one initializer is defined",

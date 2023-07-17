@@ -36,8 +36,8 @@ final class ProvideFixtureMacroTests: XCTestCase {
                 var notBaz: Bool {
                     !baz
                 }
-                public static func provideFixture(using values: ValueProvider) throws -> Self {
-                    Self(
+                public static func provideFixture(using values: ValueProvider) throws -> Foo {
+                    Foo(
                         bar1: try values.get("bar1"),
                         bar2: try values.get("bar2"),
                         baz: try values.get("baz"),
@@ -74,8 +74,8 @@ final class ProvideFixtureMacroTests: XCTestCase {
                     self.bar = bar
                     self.baz = wham
                 }
-                public static func provideFixture(using values: ValueProvider) throws -> Self {
-                    Self(
+                public static func provideFixture(using values: ValueProvider) throws -> Foo {
+                    Foo(
                         try values.get(),
                         wham: try values.get("wham")
                     )
@@ -110,8 +110,8 @@ final class ProvideFixtureMacroTests: XCTestCase {
                     self.bar = bar
                     self.baz = wham
                 }
-                public static func provideFixture(using values: ValueProvider) throws -> Self {
-                    try Self(
+                public static func provideFixture(using values: ValueProvider) throws -> Foo {
+                    try Foo(
                         try values.get(),
                         wham: try values.get("wham")
                     )
