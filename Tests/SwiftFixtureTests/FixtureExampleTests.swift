@@ -18,6 +18,17 @@ private struct Group {
     let id: UUID
     let title: String
 }
+
+private struct Office: FixtureProviding {
+    let id: UUID
+    let name: String
+    let staff: [User]
+
+    static func provideFixture(using values: ValueProvider) throws -> Office {
+        // TODO: Better to demo usage in register(_:valueProvider:) but can't due to https://github.com/apple/swift/issues/67102
+        #initFixture(with: values, using: Office.init(id:name:staff:))
+    }
+}
 #endif
 
 final class FixtureExampleTests: XCTestCase {
@@ -64,11 +75,17 @@ final class FixtureExampleTests: XCTestCase {
     }
 
     #if compiler(>=5.9)
-    func testMacro() throws {
+    func testProvideFixtureMacro() throws {
         let title = "Group Fixture"
         let group: Group = try fixture(title: title)
 
         XCTAssertEqual(group.title, title)
+    }
+
+    func testInitFixtureMacro() throws {
+        let office: Office = try fixture(name: "Bristol")
+
+        XCTAssertEqual(office.name, "Bristol")
     }
     #endif
 }

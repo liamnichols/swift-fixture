@@ -8,6 +8,22 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
         let typeIdentifier: TokenSyntax
         let argumentLabels: [String?]
         let isThrowing: Bool
+
+        var unappliedMethodReference: MemberAccessExprSyntax {
+            MemberAccessExprSyntax(
+                base: IdentifierExprSyntax(identifier: typeIdentifier),
+                name: .keyword(.`init`),
+                declNameArguments: DeclNameArgumentsSyntax(
+                    arguments: DeclNameArgumentListSyntax(argumentLabels.map { label in
+                        if let label {
+                            DeclNameArgumentSyntax(name: .identifier(label))
+                        } else {
+                            DeclNameArgumentSyntax(name: .wildcardToken())
+                        }
+                    })
+                )
+            )
+        }
     }
 
     public static func expansion(
@@ -24,33 +40,19 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
             "public static func provideFixture(using values: ValueProvider) throws -> \(initializer.typeIdentifier)"
         ) {
             CodeBlockItemListSyntax {
+                // #initFixture(with: values, using: TheType.init(foo:bar:))
+                MacroExpansionExprSyntax(macro: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
+                    TupleExprElementSyntax(
+                        label: "with",
+                        expression: IdentifierExprSyntax(identifier: "values")
+                    )
 
-                // Self(foo: try values.get("foo"), bar: try values.get("bar"))
-                FunctionCallExprSyntax(callee: IdentifierExprSyntax(identifier: initializer.typeIdentifier)) {
-                    for label in initializer.argumentLabels {
-
-
-                        // foo: try values.get("foo")
-                        TupleExprElementSyntax(
-                            label: label,
-                            expression: TryExprSyntax(
-                                expression: FunctionCallExprSyntax(
-                                    callee: IdentifierExprSyntax(
-                                        identifier: "values.get"
-                                    )
-                                ) {
-                                    if let label = label {
-                                        TupleExprElementSyntax(
-                                            label: nil,
-                                            expression: StringLiteralExprSyntax(content: label)
-                                        )
-                                    }
-                                }
-                            )
-                        )
-                    }
+                    TupleExprElementSyntax(
+                        label: "using",
+                        expression: initializer.unappliedMethodReference
+                    )
                 }
-                .wrapInTry(initializer.isThrowing) // try Self(...)
+                .wrapInTry(initializer.isThrowing) // try #initFixture(...)
             }
         }
 
@@ -137,7 +139,7 @@ private extension ProvideFixtureMacro {
 }
 
 // MARK: - Utils
-private extension FunctionCallExprSyntax {
+private extension ExprSyntaxProtocol {
     func wrapInTry(_ wrapInTry: Bool = true) -> ExprSyntaxProtocol {
         if wrapInTry {
             return TryExprSyntax(expression: self)
