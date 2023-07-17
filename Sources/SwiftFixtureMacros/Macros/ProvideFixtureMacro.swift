@@ -7,24 +7,8 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
     /// A type that describes the initializer to be called in the `FixtureProviding.provideFixture(using:)` implementation
     struct InitializerContext {
         let typeIdentifier: TokenSyntax
-        let argumentLabels: [String?]
+        let unappliedMethodReference: MemberAccessExprSyntax
         let isThrowing: Bool
-
-        var unappliedMethodReference: MemberAccessExprSyntax {
-            MemberAccessExprSyntax(
-                base: IdentifierExprSyntax(identifier: typeIdentifier),
-                name: .keyword(.`init`),
-                declNameArguments: DeclNameArgumentsSyntax(
-                    arguments: DeclNameArgumentListSyntax(argumentLabels.map { label in
-                        if let label {
-                            DeclNameArgumentSyntax(name: .identifier(label))
-                        } else {
-                            DeclNameArgumentSyntax(name: .wildcardToken())
-                        }
-                    })
-                )
-            )
-        }
     }
 
     public static func expansion(
@@ -32,28 +16,29 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
         providingMembersOf declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        // Discover the initializer arguments
-        let initializer = try initializerContext(for: declaration)
+        // Discover the context to be used for this declaration
+        let context = try initializerContext(for: declaration)
+        let valuesId = IdentifierExprSyntax(identifier: "values")
 
         // Create the provideFixture implementation calling through to the initialiser
         // public static func provideFixture(using values: ValueProvider) throws -> Self { ... }
         let functionDecl = try FunctionDeclSyntax(
-            "public static func provideFixture(using values: ValueProvider) throws -> \(initializer.typeIdentifier)"
+            "public static func provideFixture(using \(valuesId): ValueProvider) throws -> \(context.typeIdentifier)"
         ) {
             CodeBlockItemListSyntax {
                 // #initFixture(with: values, using: TheType.init(foo:bar:))
                 MacroExpansionExprSyntax(macro: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
                     TupleExprElementSyntax(
                         label: "with",
-                        expression: IdentifierExprSyntax(identifier: "values")
+                        expression: valuesId
                     )
 
                     TupleExprElementSyntax(
                         label: "using",
-                        expression: initializer.unappliedMethodReference
+                        expression: context.unappliedMethodReference
                     )
                 }
-                .wrapInTry(initializer.isThrowing) // try #initFixture(...)
+                .wrapInTry(context.isThrowing) // try #initFixture(...)
             }
         }
 
@@ -77,42 +62,35 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
 private extension ProvideFixtureMacro {
     static func initializerContext(for declaration: some DeclGroupSyntax) throws -> InitializerContext {
         // Find all initializers in the declaration
-        let initializers = declaration.memberBlock.members.compactMap { $0.decl.as(InitializerDeclSyntax.self) }
         let typeIdentifier = try typeIdentifier(from: declaration)
+        let initializers = declaration.memberBlock.members
+            .compactMap { $0.decl.as(InitializerDeclSyntax.self) }
+            .map { InitializerContext(decl: $0, typeIdentifier: typeIdentifier) }
 
         // If there are none, and it's a struct, assume use of the memberwise init
         if initializers.isEmpty, let declaration = declaration.as(StructDeclSyntax.self) {
             return InitializerContext(
                 typeIdentifier: typeIdentifier,
+                name: .keyword(.`init`),
                 argumentLabels: memberwiseInitializerArgumentLabels(for: declaration),
                 isThrowing: false
             )
         }
 
-        // Otherwise build the context from the most appropriate initializer decl
-        return InitializerContext(
-            decl: try bestInitializer(from: initializers, in: declaration),
-            typeIdentifier: typeIdentifier
-        )
-    }
-
-    private static func bestInitializer(
-        from initializers: [InitializerDeclSyntax],
-        in declaration: some DeclGroupSyntax
-    ) throws -> InitializerDeclSyntax {
-        if initializers.isEmpty {
+        // Otherwise either return the initializer or throw the appropriate error
+        switch initializers.count {
+        case 1:
+            return initializers.first!
+        case 0:
             throw DiagnosticsError(diagnostics: [
                 ProvideFixtureDiagnostic.noInitializers.diagnose(at: declaration)
             ])
-        } else if let initializer = initializers.first, initializers.count == 1 {
-            return initializer
+        default:
+            // TODO: Add some fixits based on the detected initializers.
+            throw DiagnosticsError(diagnostics: [
+                ProvideFixtureDiagnostic.tooManyInitializers.diagnose(at: declaration)
+            ])
         }
-
-        // If there are multiple options, either find the first initializer
-        // TODO: Check for the marker as a reference to disambiguate
-        throw DiagnosticsError(diagnostics: [
-            ProvideFixtureDiagnostic.tooManyInitializers.diagnose(at: declaration)
-        ])
     }
 
     private static func memberwiseInitializerArgumentLabels(
@@ -174,6 +152,31 @@ private extension ExprSyntaxProtocol {
 }
 
 private extension ProvideFixtureMacro.InitializerContext {
+    init(
+        typeIdentifier: TokenSyntax,
+        name: TokenSyntax,
+        argumentLabels: [String?],
+        isThrowing: Bool
+    ) {
+        self.init(
+            typeIdentifier: typeIdentifier,
+            unappliedMethodReference: MemberAccessExprSyntax(
+                base: IdentifierExprSyntax(identifier: typeIdentifier),
+                name: .keyword(.`init`),
+                declNameArguments: DeclNameArgumentsSyntax(
+                    arguments: DeclNameArgumentListSyntax(argumentLabels.map { label in
+                        if let label {
+                            DeclNameArgumentSyntax(name: .identifier(label))
+                        } else {
+                            DeclNameArgumentSyntax(name: .wildcardToken())
+                        }
+                    })
+                )
+            ),
+            isThrowing: isThrowing
+        )
+    }
+
     init(decl: InitializerDeclSyntax, typeIdentifier: TokenSyntax) {
         let isThrowing = decl.signature.effectSpecifiers?.throwsSpecifier != nil
         let argumentLabels: [String?] = decl.signature.input.parameterList.map { parameter in
@@ -191,6 +194,7 @@ private extension ProvideFixtureMacro.InitializerContext {
 
         self.init(
             typeIdentifier: typeIdentifier,
+            name: .keyword(.`init`),
             argumentLabels: argumentLabels,
             isThrowing: isThrowing
         )
