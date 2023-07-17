@@ -6,7 +6,7 @@
 /// ```swift
 /// import SwiftFixture
 ///
-/// @FixtureProviding
+/// @ProvideFixture
 /// struct User {
 ///     var id: UUID
 ///     var name: String
