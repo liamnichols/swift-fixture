@@ -6,10 +6,6 @@ struct InitFixtureDiagnostic: DiagnosticMessage {
     let diagnosticID: MessageID
     let severity: DiagnosticSeverity
 
-    func diagnose(at node: Syntax, position: AbsolutePosition? = nil, fixIts: [FixIt] = []) -> Diagnostic {
-        Diagnostic(node: node, position: position, message: self, fixIts: fixIts)
-    }
-
     static var requiresUnappliedMethodReference: Self {
         InitFixtureDiagnostic(
             message: "Argument must be an unapplied method reference for a static method or initializer",

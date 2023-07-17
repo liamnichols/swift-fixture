@@ -1,5 +1,6 @@
 import SwiftSyntax
 import SwiftSyntaxBuilder
+import SwiftDiagnostics
 import SwiftSyntaxMacros
 
 public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
@@ -77,7 +78,7 @@ private extension ProvideFixtureMacro {
     static func initializerContext(for declaration: some DeclGroupSyntax) throws -> InitializerContext {
         // Find all initializers in the declaration
         let initializers = declaration.memberBlock.members.compactMap { $0.decl.as(InitializerDeclSyntax.self) }
-        let typeIdentifier: TokenSyntax = "Self" // TODO: Try and figure out the actual type later?
+        let typeIdentifier = try typeIdentifier(from: declaration)
 
         // If there are none, and it's a struct, assume use of the memberwise init
         if initializers.isEmpty, let declaration = declaration.as(StructDeclSyntax.self) {
@@ -90,23 +91,28 @@ private extension ProvideFixtureMacro {
 
         // Otherwise build the context from the most appropriate initializer decl
         return InitializerContext(
-            decl: try bestInitializer(from: initializers),
+            decl: try bestInitializer(from: initializers, in: declaration),
             typeIdentifier: typeIdentifier
         )
     }
 
     private static func bestInitializer(
-        from initializers: [InitializerDeclSyntax]
+        from initializers: [InitializerDeclSyntax],
+        in declaration: some DeclGroupSyntax
     ) throws -> InitializerDeclSyntax {
         if initializers.isEmpty {
-            throw ExpansionError.noInitializers
+            throw DiagnosticsError(diagnostics: [
+                ProvideFixtureDiagnostic.noInitializers.diagnose(at: declaration)
+            ])
         } else if let initializer = initializers.first, initializers.count == 1 {
             return initializer
         }
 
         // If there are multiple options, either find the first initializer
         // TODO: Check for the marker as a reference to disambiguate
-        throw ExpansionError.tooManyInitializers
+        throw DiagnosticsError(diagnostics: [
+            ProvideFixtureDiagnostic.tooManyInitializers.diagnose(at: declaration)
+        ])
     }
 
     private static func memberwiseInitializerArgumentLabels(
@@ -135,6 +141,24 @@ private extension ProvideFixtureMacro {
         }
 
         return labels
+    }
+
+    private static func typeIdentifier(from declaration: some DeclGroupSyntax) throws -> TokenSyntax {
+        // Take the type identifier from the declaration
+        let token = if let declaration = declaration.as(StructDeclSyntax.self) {
+            declaration.identifier
+        } else if let declaration = declaration.as(EnumDeclSyntax.self) {
+            declaration.identifier
+        } else if let declaration = declaration.as(ClassDeclSyntax.self) {
+            declaration.identifier
+        } else {
+            throw DiagnosticsError(diagnostics: [
+                ProvideFixtureDiagnostic.unsupportedMember.diagnose(at: declaration)
+            ])
+        }
+
+        // Return just the literal text to strip out any unwanted trivia
+        return TokenSyntax(stringLiteral: token.text)
     }
 }
 
