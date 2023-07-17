@@ -83,12 +83,11 @@ private extension ProvideFixtureMacro {
             return initializers.first!
         case 0:
             throw DiagnosticsError(diagnostics: [
-                ProvideFixtureDiagnostic.noInitializers.diagnose(at: declaration)
+                DiagnosticMessages.noInitializers.diagnose(at: declaration)
             ])
         default:
-            // TODO: Add some fixits based on the detected initializers.
             throw DiagnosticsError(diagnostics: [
-                ProvideFixtureDiagnostic.tooManyInitializers.diagnose(at: declaration)
+                DiagnosticMessages.tooManyInitializers.diagnose(at: declaration)
             ])
         }
     }
@@ -131,7 +130,7 @@ private extension ProvideFixtureMacro {
             declaration.identifier
         } else {
             throw DiagnosticsError(diagnostics: [
-                ProvideFixtureDiagnostic.unsupportedMember.diagnose(at: declaration)
+                DiagnosticMessages.unsupportedMember.diagnose(at: declaration)
             ])
         }
 

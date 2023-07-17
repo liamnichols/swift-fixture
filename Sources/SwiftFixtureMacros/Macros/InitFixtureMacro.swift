@@ -59,13 +59,13 @@ public struct InitFixtureMacro: ExpressionMacro {
         guard let expression = argument.expression.as(MemberAccessExprSyntax.self) else {
             // TODO: We could offer a fixit suggestion here if the type was defined as a generic argument
             throw DiagnosticsError(diagnostics: [
-                InitFixtureDiagnostic.requiresUnappliedMethodReference.diagnose(at: argument.expression)
+                DiagnosticMessages.requiresUnappliedMethodReference.diagnose(at: argument.expression)
             ])
         }
 
         guard let base = expression.base?.as(IdentifierExprSyntax.self) else {
             throw DiagnosticsError(diagnostics: [
-                InitFixtureDiagnostic.requiresBaseTypeOfUnappliedMethodReference.diagnose(at: expression.dot)
+                DiagnosticMessages.requiresBaseTypeOfUnappliedMethodReference.diagnose(at: expression.dot)
             ])
         }
 
@@ -81,7 +81,7 @@ public struct InitFixtureMacro: ExpressionMacro {
 
         guard let declNameArguments = expression.declNameArguments else {
             throw DiagnosticsError(diagnostics: [
-                InitFixtureDiagnostic.requiresUnappliedMethodReferenceDeclarationNameArgumentList.diagnose(
+                DiagnosticMessages.requiresUnappliedMethodReferenceDeclarationNameArgumentList.diagnose(
                     at: expression,
                     position: expression.endPosition
                 )
