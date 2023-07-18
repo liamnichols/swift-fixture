@@ -14,6 +14,8 @@
 ///     var isActive: Bool
 /// }
 /// ```
+///
+/// While this macro offers the most convenience for managing fixture values, it requires that the macro is attached to the member declaration and not an extension. This limitation requires that SwiftFixture is included as a dependency of your main targets which is less than ideal. If you prefer not to do this, consider using the ``fixture(_:)`` macro instead.
 @attached(member, names: named(provideFixture))
 @attached(conformance)
 public macro ProvideFixture() = #externalMacro(
