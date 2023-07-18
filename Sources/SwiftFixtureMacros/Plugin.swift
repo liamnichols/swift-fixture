@@ -5,6 +5,8 @@ import SwiftSyntaxMacros
 struct Plugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         ProvideFixtureMacro.self,
-        InitFixtureMacro.self
+        InitFixtureMacro.self,
+        RegisterMacro.self,
+        FixtureMacro.self
     ]
 }

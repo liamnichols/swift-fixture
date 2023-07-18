@@ -18,7 +18,7 @@ struct DiagnosticMessages: DiagnosticMessage {
 
     static var requiresUnappliedMethodReference: Self {
         Self(
-            message: "Argument must be an unapplied method reference for a static method or initializer",
+            message: "Value must be an unapplied method reference for a static method or initializer",
             id: #function
         )
     }
@@ -33,7 +33,7 @@ struct DiagnosticMessages: DiagnosticMessage {
 
     static var requiresUnappliedMethodReferenceDeclarationNameArgumentList: Self {
         Self(
-            message: "Declaration name argument list must be provided",
+            message: "Unapplied method reference must explicitly define the argument list",
             id: #function
         )
     }

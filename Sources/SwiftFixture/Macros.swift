@@ -63,4 +63,22 @@ public macro initFixture<T>(with valueProvider: ValueProvider, using unappliedMe
     module: "SwiftFixtureMacros",
     type: "InitFixtureMacro"
 )
+
+/// 
+@freestanding(expression)
+public macro register<T>(
+    _ type: T.Type,
+    in fixture: Fixture,
+    using unappliedMemberReference: Any
+) = #externalMacro(
+    module: "SwiftFixtureMacros",
+    type: "RegisterMacro"
+)
+
+///
+@freestanding(expression)
+public macro fixture(_ registering: Any...) -> Fixture = #externalMacro(
+    module: "SwiftFixtureMacros",
+    type: "FixtureMacro"
+)
 #endif
