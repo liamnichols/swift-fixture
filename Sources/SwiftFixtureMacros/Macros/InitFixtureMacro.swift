@@ -15,7 +15,7 @@ public struct InitFixtureMacro: ExpressionMacro {
 
         // Read information from each argument
         let valueProvider = node.argumentList.first!.expression
-        let (type, name, arguments) = try initializerReference(from: node.argumentList.last!, context: context)
+        let (type, name, arguments) = try initializerReference(from: node.argumentList.last!)
 
         // Resolve the callee expression based on the method reference to be used
         let identifier = IdentifierExprSyntax(identifier: type)
@@ -49,9 +49,8 @@ public struct InitFixtureMacro: ExpressionMacro {
         })
     }
 
-    private static func initializerReference<Context: MacroExpansionContext>(
-        from argument: TupleExprElementListSyntax.Element,
-        context: Context
+    private static func initializerReference(
+        from argument: TupleExprElementListSyntax.Element
     ) throws -> (type: TokenSyntax, name: TokenSyntax?, arguments: [String?]) {
         guard argument.label?.text == "using" else {
             fatalError("compiler bug: third macro argument must be the intiailizer function signature")
@@ -60,13 +59,13 @@ public struct InitFixtureMacro: ExpressionMacro {
         guard let expression = argument.expression.as(MemberAccessExprSyntax.self) else {
             // TODO: We could offer a fixit suggestion here if the type was defined as a generic argument
             throw DiagnosticsError(diagnostics: [
-                InitFixtureDiagnostic.requiresUnappliedMethodReference.diagnose(at: argument.expression)
+                DiagnosticMessages.requiresUnappliedMethodReference.diagnose(at: argument.expression)
             ])
         }
 
         guard let base = expression.base?.as(IdentifierExprSyntax.self) else {
             throw DiagnosticsError(diagnostics: [
-                InitFixtureDiagnostic.requiresBaseTypeOfUnappliedMethodReference.diagnose(at: expression.dot)
+                DiagnosticMessages.requiresBaseTypeOfUnappliedMethodReference.diagnose(at: expression.dot)
             ])
         }
 
@@ -82,7 +81,7 @@ public struct InitFixtureMacro: ExpressionMacro {
 
         guard let declNameArguments = expression.declNameArguments else {
             throw DiagnosticsError(diagnostics: [
-                InitFixtureDiagnostic.requiresUnappliedMethodReferenceDeclarationNameArgumentList.diagnose(
+                DiagnosticMessages.requiresUnappliedMethodReferenceDeclarationNameArgumentList.diagnose(
                     at: expression,
                     position: expression.endPosition
                 )
