@@ -14,6 +14,8 @@
 ///     var isActive: Bool
 /// }
 /// ```
+///
+/// While this macro offers the most convenience for managing fixture values, it requires that the macro is attached to the member declaration and not an extension. This limitation requires that SwiftFixture is included as a dependency of your main targets which is less than ideal. If you prefer not to do this, consider using the ``fixture(_:)`` macro instead.
 @attached(member, names: named(provideFixture))
 @attached(conformance)
 public macro ProvideFixture() = #externalMacro(
@@ -62,5 +64,78 @@ public macro ProvideFixture() = #externalMacro(
 public macro initFixture<T>(with valueProvider: ValueProvider, using unappliedMethodReference: Any) -> T = #externalMacro(
     module: "SwiftFixtureMacros",
     type: "InitFixtureMacro"
+)
+
+/// A macro used for registering custom container types within a ``Fixture`` instance.
+///
+/// Provide the macro with a type, a reference to ``Fixture`` and the unapplied method reference that should be used to instantiate the fixture and am expression that calls ``Fixture/register(_:provideValue:)-7fin6`` will be expanded.
+///
+/// ```swift
+/// struct User {
+///     var id: UUID
+///     var name: String
+///     var createdAt: Date
+///     var isActive: Bool
+/// }
+///
+/// // ...
+///
+/// class UserTests: XCTestCase {
+///     let fixture = Fixture()
+///
+///     override func setUp() {
+///         super.setUp()
+///
+///         #register(User.self, in: fixture, using: User.init(id:name:createdAt:isActive:))
+///     }
+/// }
+/// ```
+///
+/// This macro is similar to the ``initFixture(with:using:)`` macro, but adds an additional layer of convenience by expanding the ``Fixture/register(_:provideValue:)-7fin6`` call as well.
+///
+/// - SeeAlso: ``fixture(_:)``
+@freestanding(expression)
+public macro register<T>(
+    _ type: T.Type,
+    in fixture: Fixture,
+    using unappliedMemberReference: Any
+) = #externalMacro(
+    module: "SwiftFixtureMacros",
+    type: "RegisterMacro"
+)
+
+/// A macro used for creating an instance of ``Fixture`` that registers a series of custom container types.
+///
+/// Use this macro instead of ``register(_:in:using:)`` or ``initFixture(with:using:)`` to group the registration of multiple types using a single macro.
+///
+/// ```swift
+/// struct User {
+///     var id: UUID
+///     var name: String
+///     var createdAt: Date
+///     var isActive: Bool
+/// }
+///
+/// struct Group {
+///     var id: UUID
+///     var owner: User
+///     var members: [User]
+/// }
+///
+/// // ...
+///
+/// class UserTests: XCTestCase {
+///     let fixture = #fixture(
+///         User.init(id:name:createdAt:isActive:),
+///         Group.init(id:owner:members:)
+///     )
+///
+///     // ...
+/// }
+/// ```
+@freestanding(expression)
+public macro fixture(_ registering: Any...) -> Fixture = #externalMacro(
+    module: "SwiftFixtureMacros",
+    type: "FixtureMacro"
 )
 #endif

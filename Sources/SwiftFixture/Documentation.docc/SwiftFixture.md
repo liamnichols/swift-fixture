@@ -21,8 +21,11 @@ SwiftFixture provides a set of tools designed to help make it easy for you to in
 
 ### Macros
 
-- ``initFixture(using:with:)``
+- <doc:Using-Macros>
+- ``fixture(_:)``
 - ``ProvideFixture()``
+- ``register(_:in:using:)``
+- ``initFixture(with:using:)``
 
 ### Errors
 

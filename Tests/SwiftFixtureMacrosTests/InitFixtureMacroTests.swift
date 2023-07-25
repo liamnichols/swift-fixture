@@ -78,7 +78,7 @@ final class InitFixtureMacroTests: XCTestCase {
             """,
             diagnostics: [
                 DiagnosticSpec(
-                    message: "Declaration name argument list must be provided",
+                    message: "Unapplied method reference must explicitly define the argument list",
                     line: 1,
                     column: 44
                 )
@@ -124,7 +124,7 @@ final class InitFixtureMacroTests: XCTestCase {
             """,
             diagnostics: [
                 DiagnosticSpec(
-                    message: "Argument must be an unapplied method reference for a static method or initializer",
+                    message: "Value must be an unapplied method reference for a static method or initializer",
                     line: 1,
                     column: 35
                 )

@@ -26,9 +26,9 @@ public struct ProvideFixtureMacro: MemberMacro, ConformanceMacro {
             "public static func provideFixture(using \(valuesId): ValueProvider) throws -> \(context.typeIdentifier)"
         ) {
             // #initFixture(with: values, using: TheType.init(foo:bar:))
-            MacroExpansionExprSyntax.initFixture(
+            try InitFixtureMacro.expansion(
                 valueProvider: valuesId,
-                unappliedMethodReference: context.unappliedMethodReference
+                unappliedMethodReference: try context.unappliedMethodReference.unappliedMethodReference
             )
             .wrapInTry(context.isThrowing) // try #initFixture(...)
         }

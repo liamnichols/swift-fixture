@@ -45,12 +45,16 @@ final class FixtureExampleTests: XCTestCase {
             )
         }
 
+        #if compiler(>=5.9)
+        #register(Item.self, in: fixture, using: Item.init(title:owner:))
+        #else
         fixture.register(Item.self) { values in
             Item(
                 title: try values.get("title"),
                 owner: try values.get("owner")
             )
         }
+        #endif
     }
 
     func testExample() throws {
@@ -86,6 +90,16 @@ final class FixtureExampleTests: XCTestCase {
         let office: Office = try fixture(name: "Bristol")
 
         XCTAssertEqual(office.name, "Bristol")
+    }
+
+    let macroFixture = #fixture(
+        User.init(id:name:createdAt:),
+        Item.init(title:owner:)
+    )
+
+    func testFixtureMacro() throws {
+        let item = try macroFixture(title: "foo") as Item
+        XCTAssertEqual(item.title, "foo")
     }
     #endif
 }
