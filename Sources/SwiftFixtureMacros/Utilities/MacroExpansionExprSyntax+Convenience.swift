@@ -5,13 +5,13 @@ extension MacroExpansionExprSyntax {
         valueProvider: some ExprSyntaxProtocol,
         unappliedMethodReference: some ExprSyntaxProtocol
     ) -> Self {
-        MacroExpansionExprSyntax(macro: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
-            TupleExprElementSyntax(
+        MacroExpansionExprSyntax(macroName: "initFixture", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
+            LabeledExprSyntax(
                 label: "with",
                 expression: valueProvider
             )
 
-            TupleExprElementSyntax(
+            LabeledExprSyntax(
                 label: "using",
                 expression: unappliedMethodReference
             )
@@ -23,18 +23,18 @@ extension MacroExpansionExprSyntax {
         fixture: some ExprSyntaxProtocol,
         unappliedMethodReference: some ExprSyntaxProtocol
     ) -> Self {
-        MacroExpansionExprSyntax(macro: "register", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
-            TupleExprElementSyntax(
+        MacroExpansionExprSyntax(macroName: "register", leftParen: .leftParenToken(), rightParen: .rightParenToken()) {
+            LabeledExprSyntax(
                 label: nil,
                 expression: type
             )
 
-            TupleExprElementSyntax(
+            LabeledExprSyntax(
                 label: "in",
                 expression: fixture
             )
 
-            TupleExprElementSyntax(
+            LabeledExprSyntax(
                 label: "using",
                 expression: unappliedMethodReference
             )

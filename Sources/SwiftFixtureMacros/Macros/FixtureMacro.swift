@@ -16,13 +16,13 @@ public struct FixtureMacro: ExpressionMacro {
         // Produce the expanded code
         // Fixture()
         let fixtureInit = InitializerClauseSyntax(value: FunctionCallExprSyntax(
-            callee: IdentifierExprSyntax(identifier: "Fixture"),
+            callee: DeclReferenceExprSyntax(baseName: "Fixture"),
             leftParen: .leftParenToken(),
             rightParen: .rightParenToken()
         ))
 
         // fixture
-        let fixtureVar = IdentifierExprSyntax(identifier: "fixture")
+        let fixtureVar = DeclReferenceExprSyntax(baseName: "fixture")
 
         // {
         //     let fixture = Fixture()
@@ -34,10 +34,10 @@ public struct FixtureMacro: ExpressionMacro {
                 // let fixture = Fixture()
                 VariableDeclSyntax(
                     .`let`,
-                    name: .init(stringLiteral: fixtureVar.identifier.text),
+                    name: .init(stringLiteral: fixtureVar.baseName.text),
                     initializer: fixtureInit
                 )
-
+                
                 // #register(MyType.self, in: fixture, using: MyType.init(foo:bar:)
                 for unappliedMethodReference in registrations {
                     try RegisterMacro.expansion(
@@ -46,12 +46,12 @@ public struct FixtureMacro: ExpressionMacro {
                         unappliedMethodReference: unappliedMethodReference
                     )
                 }
-
+                
                 // return fixture
                 ReturnStmtSyntax(expression: fixtureVar)
             },
             leftParen: .leftParenToken(),
-            argumentList: [],
+            arguments: [],
             rightParen: .rightParenToken()
         ))
     }

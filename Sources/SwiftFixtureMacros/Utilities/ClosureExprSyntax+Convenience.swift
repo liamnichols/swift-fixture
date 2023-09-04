@@ -3,13 +3,13 @@ import SwiftSyntaxBuilder
 
 extension ClosureExprSyntax {
     init(
-        simpleInput: ClosureParamListSyntax,
+        simpleInput: ClosureShorthandParameterListSyntax,
         @CodeBlockItemListBuilder statementsBuilder: () throws -> CodeBlockItemListSyntax
     ) rethrows {
         self.init(
             signature: ClosureSignatureSyntax(
                 leadingTrivia: .space,
-                input: .simpleInput(simpleInput)
+                parameterClause: .simpleInput(simpleInput)
             ),
             statements: try statementsBuilder()
         )
