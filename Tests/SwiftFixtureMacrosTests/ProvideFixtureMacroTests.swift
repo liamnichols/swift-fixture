@@ -30,6 +30,9 @@ final class ProvideFixtureMacroTests: XCTestCase {
                 var notBaz: Bool {
                     !baz
                 }
+            }
+
+            extension Foo: FixtureProviding {
                 public static func provideFixture(using values: ValueProvider) throws -> Foo {
                     Foo(
                         bar1: try values.get("bar1"),
@@ -68,6 +71,9 @@ final class ProvideFixtureMacroTests: XCTestCase {
                     self.bar = bar
                     self.baz = wham
                 }
+            }
+
+            extension Foo: FixtureProviding {
                 public static func provideFixture(using values: ValueProvider) throws -> Foo {
                     Foo(
                         try values.get(),
@@ -104,6 +110,9 @@ final class ProvideFixtureMacroTests: XCTestCase {
                     self.bar = bar
                     self.baz = wham
                 }
+            }
+
+            extension Foo: FixtureProviding {
                 public static func provideFixture(using values: ValueProvider) throws -> Foo {
                     try Foo(
                         try values.get(),

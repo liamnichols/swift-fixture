@@ -2,7 +2,7 @@ import SwiftDiagnostics
 import SwiftSyntax
 
 typealias UnappliedMethodReference = (
-    base: IdentifierExprSyntax,
+    base: DeclReferenceExprSyntax,
     name: TokenSyntax?,
     arguments: DeclNameArgumentsSyntax,
     expression: MemberAccessExprSyntax
@@ -27,16 +27,16 @@ extension ExprSyntaxProtocol {
             }
 
             // The base must be defined (i.e `User.init` vs just `.init`)
-            guard let base = expression.base?.as(IdentifierExprSyntax.self) else {
+            guard let base = expression.base?.as(DeclReferenceExprSyntax.self) else {
                 throw DiagnosticsError(diagnostics: [
-                    DiagnosticMessages.requiresBaseTypeOfUnappliedMethodReference.diagnose(at: expression.dot)
+                    DiagnosticMessages.requiresBaseTypeOfUnappliedMethodReference.diagnose(at: expression.period)
                 ])
             }
 
             // It's possible that the reference isn't to an init statement, extract the method name if so
             // i.e `UserFactory.newUser(named:)` -> `newUser`
-            let name: TokenSyntax? = switch expression.name.tokenKind {
-            case .identifier: expression.name
+            let name: TokenSyntax? = switch expression.declName.baseName.tokenKind {
+            case .identifier: expression.declName.baseName
             case .keyword(.`init`): nil
             default:
                 fatalError("compiler bug: unexpected expression name token")
@@ -44,7 +44,7 @@ extension ExprSyntaxProtocol {
 
             // The arguments must have been provided
             // It must be `User.init(name:)`, not `User.init`
-            guard let declNameArguments = expression.declNameArguments else {
+            guard let declNameArguments = expression.declName.argumentNames else {
                 throw DiagnosticsError(diagnostics: [
                     DiagnosticMessages.requiresUnappliedMethodReferenceDeclarationNameArgumentList.diagnose(
                         at: expression,

@@ -6,12 +6,12 @@ extension FunctionCallExprSyntax {
         callee: C,
         leftParen: TokenSyntax = .leftParenToken(),
         rightParen: TokenSyntax,
-        @TupleExprElementListBuilder argumentList: () -> TupleExprElementListSyntax = { [] }
+        @LabeledExprListBuilder argumentList: () -> LabeledExprListSyntax = { [] }
     ) {
         self.init(
             calledExpression: callee,
             leftParen: leftParen,
-            argumentList: argumentList(),
+            arguments: argumentList(),
             rightParen: rightParen
         )
     }

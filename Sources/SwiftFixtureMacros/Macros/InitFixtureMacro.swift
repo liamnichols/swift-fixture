@@ -37,7 +37,7 @@ public struct InitFixtureMacro: ExpressionMacro {
         // )
         return FunctionCallExprSyntax(callee: callee, rightParen: .rightParenToken(leadingTrivia: .newline)) {
             for label in unappliedMethodReference.arguments.labels {
-                TupleExprElementSyntax(
+                LabeledExprSyntax(
                     leadingTrivia: .newline,
                     label: label.flatMap({ TokenSyntax(.identifier($0), presence: .present) }),
                     colon: label == nil ? .none : .colonToken(),
@@ -48,7 +48,7 @@ public struct InitFixtureMacro: ExpressionMacro {
                             rightParen: .rightParenToken()
                         ) {
                             if let label {
-                                TupleExprElementSyntax(expression: StringLiteralExprSyntax(content: label))
+                                LabeledExprSyntax(expression: StringLiteralExprSyntax(content: label))
                             }
                         }
                     )
