@@ -32,9 +32,9 @@ public struct RegisterMacro: ExpressionMacro {
         // { values in
         //     #initFixture(...)
         // }
-        let valuesId = IdentifierExprSyntax(identifier: "values")
+        let valuesId = DeclReferenceExprSyntax(baseName: "values")
         let closure = try ClosureExprSyntax(simpleInput: [
-            ClosureParamSyntax(name: valuesId.identifier)
+            ClosureShorthandParameterSyntax(name: valuesId.baseName)
         ]) {
             try InitFixtureMacro.expansion(
                 valueProvider: valuesId,
@@ -46,7 +46,7 @@ public struct RegisterMacro: ExpressionMacro {
         return FunctionCallExprSyntax(
             calledExpression: MemberAccessExprSyntax(base: fixture, name: "register"),
             leftParen: .leftParenToken(),
-            argumentList: [TupleExprElementSyntax(expression: type)],
+            arguments: [LabeledExprSyntax(expression: type)],
             rightParen: .rightParenToken(),
             trailingClosure: closure
         )
