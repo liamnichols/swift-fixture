@@ -79,8 +79,8 @@ final class InitFixtureMacroTests: XCTestCase {
             diagnostics: [
                 DiagnosticSpec(
                     message: "Unapplied method reference must explicitly define the argument list",
-                    line: 1,
-                    column: 44
+                    line: 2,
+                    column: 52
                 )
             ],
             macros: testMacros
@@ -102,8 +102,8 @@ final class InitFixtureMacroTests: XCTestCase {
             diagnostics: [
                 DiagnosticSpec(
                     message: "Unapplied method reference must explicitly define the base type",
-                    line: 1,
-                    column: 35
+                    line: 2,
+                    column: 43
                 )
             ],
             macros: testMacros
@@ -125,8 +125,8 @@ final class InitFixtureMacroTests: XCTestCase {
             diagnostics: [
                 DiagnosticSpec(
                     message: "Value must be an unapplied method reference for a static method or initializer",
-                    line: 1,
-                    column: 35
+                    line: 2,
+                    column: 43
                 )
             ],
             macros: testMacros

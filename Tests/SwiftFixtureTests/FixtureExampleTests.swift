@@ -12,7 +12,6 @@ private struct Item: Equatable {
     let owner: User
 }
 
-#if compiler(>=5.9)
 @ProvideFixture
 private struct Group {
     let id: UUID
@@ -29,7 +28,6 @@ private struct Office: FixtureProviding {
         #initFixture(with: values, using: Office.init(id:name:staff:))
     }
 }
-#endif
 
 final class FixtureExampleTests: XCTestCase {
     let fixture = Fixture()
@@ -45,16 +43,7 @@ final class FixtureExampleTests: XCTestCase {
             )
         }
 
-        #if compiler(>=5.9)
         #register(Item.self, in: fixture, using: Item.init(title:owner:))
-        #else
-        fixture.register(Item.self) { values in
-            Item(
-                title: try values.get("title"),
-                owner: try values.get("owner")
-            )
-        }
-        #endif
     }
 
     func testExample() throws {
@@ -78,7 +67,6 @@ final class FixtureExampleTests: XCTestCase {
         XCTAssertEqual(items.count, 3)
     }
 
-    #if compiler(>=5.9)
     func testProvideFixtureMacro() throws {
         let title = "Group Fixture"
         let group: Group = try fixture(title: title)
@@ -101,5 +89,4 @@ final class FixtureExampleTests: XCTestCase {
         let item = try macroFixture(title: "foo") as Item
         XCTAssertEqual(item.title, "foo")
     }
-    #endif
 }
